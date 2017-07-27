@@ -821,7 +821,11 @@ render(
 )
 ```
 
-(**Note:** that it is important to use destructuring assignment while fetching exported variables in our imports)
+
+
+**Note:** 
+- It is important to use destructuring assignment while fetching exported variables in our imports
+- Using `React` in some browsers throws an error. Adding it as a property of window object resolves this issue. (`window.React = React`)
 
 ### Adding Properties to Components
 Instead of hardcoding values within our components, we can use properties.
