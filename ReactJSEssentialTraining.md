@@ -769,3 +769,335 @@ render(
 }
 ```
 
+## React Components
+
+We can think of React interface as an **organized collection** of **Components**.
+
+In React, we can create components with `React.createClass()` and save it as a variable or constant.
+
+We need to supply an object `{}` to the function which will contain a `render` method. This `render` method has to return **JSX**.
+
+Whatever components we create can be **export**ed from the file and **import**ed to the destination.
+
+**Example** of a simple component (created within the `./src/components` folder: 
+```
+// "./src/components.js":
+
+import React from 'react'
+import '../stylesheets/workout.css'
+
+export const WorkoutActivityCounter = React.createClass({
+	render() {
+		return (
+			<div className="workout-count">
+				<div className="workout-count-total">
+					<span>5 days</span>
+				</div>
+				<div className="workout-count-morning">
+					<span>3 days</span>
+				</div>
+				<div className="workout-count-evening">
+					<span>2 days</span>
+				</div>
+			</div>
+		)
+	}
+})
+```
+
+```
+// "./src/index.js":
+
+import React from 'react'
+import { render } from 'react-dom'
+
+import { WorkoutActivityCounter } from './components/WorkoutActivityCounter'
+
+window.React = React
+
+render(
+	<WorkoutActivityCounter />,
+	document.getElementById('react-container')
+)
+```
+
+(**Note:** that it is important to use destructuring assignment while fetching exported variables in our imports)
+
+### Adding Properties to Components
+Instead of hardcoding values within our components, we can use properties.
+
+Properties are just objects that contain values. We can add properties to a component during its inclusion like so:
+```
+render(
+	<WorkoutActivityCounter total={19}
+							morning={12}
+							evening={7}
+							goal={30} />,
+	document.getElementById('react-container')
+)
+```
+
+**Note:** for `numbers` & `booleans` we require `{}` around the property value but for `strings` we do not (Ex: `total="Nineteen"`)
+
+We can **use the properties** inside the components like this (via the `this.props` object - again wrapped inside `{}`):
+```
+export const WorkoutActivityCounter = React.createClass({
+	render() {
+		return (
+			<div className="workout-count">
+				<div className="workout-count-total">
+					<span>{this.props.total}</span>
+					<span> Total days</span>
+				</div>
+				<div className="workout-count-morning">
+					<span>{this.props.morning}</span>
+					<span> Morning days</span>
+				</div>
+				<div className="workout-count-evening">
+					<span>{this.props.evening}</span>
+					<span> Evening days</span>
+				</div>
+				<div className="workout-count-goal">
+					<span>{this.props.goal}</span>
+					<span> Days is the goal</span>
+				</div>
+			</div>
+		)
+	}
+})
+```
+
+### Adding Methods to Components
+
+Inside our createClass (which has the `render` method), we can hve other methods too! (In ES6 class methods style).
+
+Methods are used to add functionality to our component.
+
+Syntax:
+```
+React.createClass({
+    ...
+    method1Name() {
+    
+    },
+    method2Name() {
+    
+    },
+    ...
+    render() {
+        return <someJSX>
+    }
+})
+```
+
+We can refer to the methods inside a component by using `this.methodName` (Notic that only for properties do we use `this.props.propName` but for methods we directly reference it from `this`).
+
+Example:
+```
+export const WorkoutActivityCounter = React.createClass({
+	decimalToPercent(decimal) {
+		return (Math.floor(decimal * 100) + '%')
+	},
+	calcGoalProgress(total, goal) {
+		return this.decimalToPercent(total/goal);
+	},
+	render() {
+		return (
+			<div className="workout-count">
+				<div className="workout-count-total">
+					<span>{this.props.total}</span>
+					<span> Total days</span>
+				</div>
+				<div className="workout-count-morning">
+					<span>{this.props.morning}</span>
+					<span> Morning days</span>
+				</div>
+				<div className="workout-count-evening">
+					<span>{this.props.evening}</span>
+					<span> Evening days</span>
+				</div>
+				<div className="workout-count-goal">
+					<span>{this.calcGoalProgress(this.props.total, this.props.goal)}</span>
+					<span> Complete</span>
+				</div>
+			</div>
+		)
+	}
+})
+
+// Inside the render() method, 
+// we use JS expressions {} to make calls 
+// to component methods (by passing values) and 
+// also can refer to component properties
+```
+
+### Using ES6 Classes for Components
+With the advent of ES6, we can write a simpler React component as an ES6 class. This syntax is more elegant.
+
+**Note:** ES6 classes start with the keyword `class` and they have methods in the enhanced object notation form, with **no commas** between their methods.
+
+Defining a component as a class:
+```
+import React from 'react'
+...
+export class <className> extends React.Component {
+    ...methods including render...
+}
+```
+
+We can also use **destructuring assignment** to fetch only the `Component` property of `react` and extend that class (helps in preventing inclusion of unwanted code/data). Example:
+```
+import { Component } from 'react'
+...
+export class <className> extends Component {
+    ...methods including render...
+}
+```
+
+**A Full Example:**
+```
+import { Component } from 'react'
+import '../stylesheets/workout.css'
+
+export class WorkoutActivityCounter extends Component {
+	decimalToPercent(decimal) {
+		return (Math.floor(decimal * 100) + '%')
+	}
+	calcGoalProgress(total, goal) {
+		return this.decimalToPercent(total/goal);
+	}
+	render() {
+		return (
+			<div className="workout-count">
+				<div className="workout-count-total">
+					<span>{this.props.total}</span>
+					<span> Total days</span>
+				</div>
+				<div className="workout-count-morning">
+					<span>{this.props.morning}</span>
+					<span> Morning days</span>
+				</div>
+				<div className="workout-count-evening">
+					<span>{this.props.evening}</span>
+					<span> Evening days</span>
+				</div>
+				<div className="workout-count-goal">
+					<span>{this.calcGoalProgress(this.props.total, this.props.goal)}</span>
+					<span> Complete</span>
+				</div>
+			</div>
+		)
+	}
+}
+```
+
+### Creating Stateless Functional Components
+Apart from the `createClass` and ES6 `class` ways to create components, we can also create one using stateless functions.
+
+Stateless functional components are functions that take in *property information* and *return JSX*.
+
+Stateless functional components **do not** have access to `this`.
+
+**Note:**
+- We create stateless functional components uing the function syntax (preferrably "arrow functions").
+- The function must return JSX. Whenever we are returning JSX, we can wrap it around in parenthese `()` - No need for a `return` statement nor the functions curly braces `{}` (see example).
+- The function takes properties object passed to it from the parent classes (or wherever it is included and has props defined) as a parameter. 
+- The function **cannot** have other **methods** within it. The other methods must be defined as separate functions.
+- The function is **not** extending `React.Component`, hence inclusion of the same in the file is **not needed**.
+
+Example:
+```
+import '../stylesheets/workout.css'
+
+const decimalToPercent = (decimal) => {
+	return (Math.floor(decimal * 100) + '%')
+}
+const calcGoalProgress = (total, goal) => {
+	return decimalToPercent(total / goal);
+}
+
+export const WorkoutActivityCounter = (props) => (
+	<div className="workout-count">
+		<div className="workout-count-total">
+			<span>{props.total}</span>
+			<span> Total days</span>
+		</div>
+		<div className="workout-count-morning">
+			<span>{props.morning}</span>
+			<span> Morning days</span>
+		</div>
+		<div className="workout-count-evening">
+			<span>{props.evening}</span>
+			<span> Evening days</span>
+		</div>
+		<div className="workout-count-goal">
+			<span>{calcGoalProgress(props.total, props.goal)}</span>
+			<span> Complete</span>
+		</div>
+	</div>
+)
+
+// Note the use of parentheses () inside the arrow function. 
+// This is valid syntax as long as the only thing within () is JSX. 
+// Syntax is the same as returning JSX from the function.
+```
+
+**Note:** We can also use **destructuring** of the properties object in the formal parameters section of the function to receive only those properties that we intend to render from the component. Example:
+```
+export const WorkoutActivityCounter = ({total, morning, evening, goal}) => (
+	<div className="workout-count">
+		<div className="workout-count-total">
+			<span>{total}</span>
+			<span> Total days</span>
+		</div>
+		<div className="workout-count-morning">
+			<span>{morning}</span>
+			<span> Morning days</span>
+		</div>
+		<div className="workout-count-evening">
+			<span>{evening}</span>
+			<span> Evening days</span>
+		</div>
+		<div className="workout-count-goal">
+			<span>{calcGoalProgress(total, goal)}</span>
+			<span> Complete</span>
+		</div>
+	</div>
+)
+```
+
+**Note:**
+- It may be a good idea to use stateless functions.
+- React team has hinted that it might offer performance benefits over the other two methods of creating components.
+- It is a very simple way of creating components and it does not have state. So unless state is required, we can stick to these functionsfor components.
+
+### `react-icons`: Using a community tool:
+
+**React is a LIBRARY and not a framework**
+- Libraries are intentionally pretty small
+- When we don't find what we need in React, there is a huge probability that someone else has already built it for you.
+- `react-icons` is one such tool that is built by the community.
+
+Read Usage/Documentation for `react-icons`: https://gorangajic.github.io/react-icons/fa.html
+
+Installing `react-icons`:
+```
+npm install --save react-icons
+```
+
+Using/Importing a react icon (example):
+```
+import Terrain from 'react-icons/lib/md/terrain'
+```
+We can import only what we wish to use (instead of importing the full set of icons). In this case, we import 'react-icons/lib/md/terrain'.
+
+`react-icons` are basically *components** so you may use them within other components. Example:
+```
+...
+<div className="workout-count-goal">
+    <span><Terrain /></span>
+    <span>{calcGoalProgress(total, goal)}</span>
+    <span> Complete</span>
+</div>
+...
+```
