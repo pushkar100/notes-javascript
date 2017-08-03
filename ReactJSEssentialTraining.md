@@ -1105,3 +1105,104 @@ We can import only what we wish to use (instead of importing the full set of ico
 </div>
 ...
 ```
+
+## Props and State
+
+### Displaying Child Components
+- Whenever we are including a child component inside a parent, we must:
+    1. Import the child component file
+    2. Display the component in the parent's JSX.
+    3. Pass properties to the child element.
+
+**Important!**
+1. In React, when we are **looping** through child elements (or creating multiple elements) it is helpful to **create a key** for each looped element so that React can uniquely identify it - Helps with **smart rendering**.
+2. We can use a `map()` function which is very much like the JS array map() function to create a one-to-one map of elements of an array inside a JSX Expression.
+3. Also, inside a JSX expression that is within `{}` we can use the ternary operator like so `(morning) ? <Morning /> : <Evening />`.
+
+Example:
+```
+// "./src/components/HikingRow.js":
+
+export const HikingRow = ({place, date, morning}) => (
+	<tr>
+		<td>{date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}</td>
+		<td>{place}</td>
+		<td>{(morning) ? <Morning /> : <Evening />}</td>
+	</tr>
+)
+```
+
+```
+// "./src/components/HikingList.js":
+
+import { HikingRow } from './HikingRow'
+
+export const HikingList = ({days}) => (
+	<table>
+		<thead>
+			<tr>
+				<th>Date</th>
+				<th>Place</th>
+				<th>Hiking Time</th>
+			</tr>
+		</thead>
+		<tbody>
+			{days.map((day, i) => 
+					<HikingRow	key={i} 
+								place={day.place}
+								date={day.date}
+								morning={day.morning} />
+			)}
+		</tbody>
+	</table>
+)
+```
+
+**Note:** `map()` function in React is very similar to the JS array `map()` function. Refer: https://facebook.github.io/react/docs/lists-and-keys.html.
+
+We can take advantage of **ES6 features** and use the `spread` operator to pass property values when that property is an object or array:
+```
+export const HikingList = ({days}) => (
+	<table>
+		<thead>
+			<tr>
+				<th>Date</th>
+				<th>Place</th>
+				<th>Hiking Time</th>
+			</tr>
+		</thead>
+		<tbody>
+			{days.map((day, i) => 
+				<HikingRow key={i} 
+					{...day} />
+			)}
+		</tbody>
+	</table>
+)
+```
+
+### Default Props
+We can specify default properties to components (optional) when they are not specified by the calling component.
+
+There are three ways to define a component and hence, three ways to specify default properties:
+
+1. If we are using `createClass` to create a component, we can have a `getDefaultProps()` method inside it:
+```
+export const SkiDayCount = createClass({
+  getDefaultProps() {
+    return {
+      total: 50,
+      powder: 50, 
+      backcountry: 15, 
+      goal: 100
+    }
+  },
+  ...
+  render() {
+      ...
+  }
+  ...
+}
+```
+
+2. 
