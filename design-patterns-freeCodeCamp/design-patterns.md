@@ -1,7 +1,8 @@
 # Design Patterns by FreeCodeCamp
 
 Youtube Playlist: Beau teaches JavaScript.
-Source: https://www.youtube.com/playlist?list=PLWKjhJtqVAbnZtkAI3BqcYxKnfWn_C704
+
+[Source](https://www.youtube.com/playlist?list=PLWKjhJtqVAbnZtkAI3BqcYxKnfWn_C704)
 
 ## 1. Singleton Design Pattern:
 
