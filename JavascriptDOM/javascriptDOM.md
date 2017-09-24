@@ -645,6 +645,8 @@ function logEvent(e) {
 2. `event.stopPropagation()` – It prevents the event from propagating (or “bubbling up”) the DOM (To either unexecuted event listeners on the same DOM element or to the event listeners of the parent/ancestors (bubbling)).
 3. `return false;` - Does both `e.preventDefault()` and `event.stopPropagation()`. It also stops current callback execution and returns immediately when called.
 
+---
+
 ## `DOMContentLoaded` vs `jQuery.ready` vs `load`
 
 The above are different page load triggers (`ready` is a jquery utility; listed for comparison).
@@ -699,3 +701,6 @@ el.offsetHeight // Trigger render
 
 // el will have rendered here
 ```
+
+---
+
