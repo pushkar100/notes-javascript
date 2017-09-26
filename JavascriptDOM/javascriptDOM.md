@@ -915,4 +915,101 @@ Apart from the links to parent, child, siblings, etc. some elements have additio
 4. `<td>` and `<th>` have:
     - `td.cellIndex` – the number of the cell inside the enclosing `<tr>`. 
 
+## Searching Nodes & Elements
 
+1. `document.getElementById(id)`: The id must be unique. There can be only one element in the document with the given id. (Note: Only `document.getElementById`, not `anyNode.getElementById` because the method `getElementById` can be called only on **document** object. It looks for the given id in the whole document.)
+2. `elem.getElementsByTagName(tag)` looks for elements with the given tag and returns the collection of them. The tag parameter can also be a star "*" for “any tags”. This method is callable in the context of any DOM element.
+3. `elem.getElementsByClassName(className)` returns elements that have the given CSS class. Elements may have other classes too.
+4. `document.getElementsByName(name)` returns elements with the given name attribute, document-wide (*Rarely used*). Again, `getElementsByName` can be called only on **document** object.
+
+`getElementsByTagName(tag)`, `getElementsByClassName(className)`, and `getElementsByName(name)` return a collection (**HTMLCollection**), not an element!
+
+5. `elem.querySelectorAll(css)` returns all elements inside elem matching the given CSS selector (most often used and powerful method). 
+6. `elem.querySelector(css)` returns the **first element** for the given CSS selector. In other words, `elem.querySelectorAll(css)[0] === querySelector(css)`
+
+`querySelectorAll(css)` returns a `NodeList` object - It is again an "array-like" structure but is not the same as an `HTMLCollection`.
+
+**Checking if an element matches a CSS selector:**
+
+`elem.matches(css)` to check if elem matches the given CSS selector. It returns `true` or `false.`
+
+```javascript=
+if (elem.matches('a[href$="zip"]')) {
+  alert("The archive reference: " + elem.href );
+}
+```
+
+**Getting the closest ancestor matching a CSS selector:**
+
+The method `elem.closest(css)` looks the nearest ancestor that matches the CSS-selector. The `elem` itself is also included in the search.
+
+```htmlmixed=
+<h1>Contents</h1>
+
+<div class="contents">
+  <ul class="book">
+    <li class="chapter">Chapter 1</li>
+    <li class="chapter">Chapter 1</li>
+  </ul>
+</div>
+
+<script>
+  let chapter = document.querySelector('.chapter'); // LI
+
+  alert(chapter.closest('.book')); // UL
+  alert(chapter.closest('.contents')); // DIV
+
+  alert(chapter.closest('h1')); // null (because h1 is not an ancestor)
+</script>
+```
+
+**Checking if an element contains another element:**
+
+`elemA.contains(elemB)` returns true if `elemB` is inside `elemA` (a descendant of `elemA`) or when `elemA == elemB`. `elemB` need not be an immediate child of `elemA` but can be a descendant of it for the method to return `true`.
+
+**Important:**
+
+1. All methods "getElementsBy*" (`getElementsByClassName`, `getElementsByTagName`, `getElementsByName`) return a **live collection**. Such collections always reflect the current state of the document and “auto-update” when it changes
+
+```htmlmixed=
+<div>First div</div>
+
+<script>
+  let divs = document.getElementsByTagName('div');
+  alert(divs.length); // 1
+</script>
+
+<div>Second div</div>
+
+<script>
+  alert(divs.length); // 2
+</script>
+```
+
+2. `querySelectorAll` returns a **static collection**. It’s like a fixed array of elements.
+
+```htmlmixed=
+<div>First div</div>
+
+<script>
+  let divs = document.querySelectorAll('div');
+  alert(divs.length); // 1
+</script>
+
+<div>Second div</div>
+
+<script>
+  alert(divs.length); // 1
+</script>
+```
+
+**Summary**
+
+| Method	              | Searches by...    |	Can call on an element? | Live? |
+| ----------------------- | ----------------- | ----------------------- | ----- |
+| getElementById	      | id                |	-                       |	-   |
+| getElementsByName       |	name              |	-                       |	✔  |
+| getElementsByTagName    |	tag or *          |	✔                       |	✔  |
+| getElementsByClassName  |	class             |	✔                       |	✔  |
+| querySelector	          | CSS-selector      | ✔                       |	-  |
+| querySelectorAll        |	CSS-selector      |	✔                       |	-  |
