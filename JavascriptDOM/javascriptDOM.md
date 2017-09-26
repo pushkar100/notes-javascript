@@ -704,3 +704,215 @@ el.offsetHeight // Trigger render
 
 ---
 
+# Javascript.info DOM & BOM (Part 2)
+
+A host environment provides platform-specific objects and functions additionally to the language core.
+
+In the browser, there is a “root” object called `window`. It has two roles:
+1. It is a global object for JavaScript code.
+2. It represents the “browser window” and provides methods to control it.
+
+![Window object](http://javascript.info/article/browser-environment/windowObjects@2x.png)
+
+## Document Object Model (DOM)
+
+The `document` object gives access to the page content. We can change or create anything on the page using it.
+
+The first version was “DOM Level 1”, then it was extended by DOM Level 2, then DOM Level 3, and now it’s **DOM Level 4**.
+
+**Note:**
+1. DOM is *not only* for browsers. For example, server-side tools that download HTML pages and process them. They may support only a part of the DOM specification though.
+2. **CSSOM** for styling. CSSOM is rarely required, because usually CSS rules are static.
+
+## Browser Object Model (BOM)
+
+Browser Object Model (BOM) are additional objects provided by the browser (host environment) to work with everything except the document.
+
+1. `navigator` object provides background information about the browser and the operation system. `navigator.userAgent` – about the current browser, and `navigator.platform` – about the platform (can help to differ between Windows/Linux/Mac etc.
+2. `location` object allows to read the current URL and redirect the browser to a new one. Ex: `location.href = 'https://wikipedia.org'; // redirect the browser to another URL
+}`
+3. Functions `alert`/`confirm`/`prompt`/`setTimeout` are also a part of BOM: not related to the document, but represent pure browser methods of communicating with the user.
+
+[MOZILLA RESOURCE FOR JS, DOM, & BOM]( https://developer.mozilla.org/en-US/search)
+
+## DOM In Detail
+
+- Every HTML-tag is an **object**. Tags are called *element nodes* (or just elements)
+- Nested tags are called “children” of the enclosing one.
+- The text inside a tag it is an object as well. A text node contains *only a string*. It may not have children and is always a *leaf* of the tree.
+- All these objects are accessible using JavaScript.
+
+The DOM represents HTML as a **tree structure of tags.**
+
+**Text Nodes:** (`#text`)
+1. Spaces and newlines – are totally valid characters, they form text nodes and become a part of the DOM.
+2. There are two top-level text node **exclusions**:
+    - Spaces and newlines before `<head>` are ignored.
+    - If we put something after `</body>`, then that is automatically moved inside the body (Applies to non-text nodes also). So there may be no spaces after `</body>`.
+
+**Browser Autocorrection:** (`#comment`)
+1. If the browser encounters malformed HTML, it automatically corrects it when making DOM.
+2. The top tag is always `<html>`. Even if it doesn’t exist in the document – it will be in DOM, the browser will create it. The same about `<body>`. Example: if the HTML file is a single word "Hello", the browser will wrap it into `<html>` and `<body>`, add the required `<head>`.
+3. `<table>` must have `<tbody>` according to specs, but HTML text may (officially) omit it. Then the browser creates `<tbody>` in DOM automatically.
+4. Everything in HTML, even `<!-- -->` "comments" (`#comment`), becomes a part of DOM.
+
+**Summary:**
+There are **12** node types. In practice we usually work with 4 of them:
+
+1. `document` – the “entry point” into DOM.
+2. element nodes – HTML-tags, the tree building blocks.
+3. text nodes – contain text.
+4. comments – sometimes we can put the information there, it won’t be shown, but JS can read it from DOM.
+
+[Live DOM viewer](http://software.hixie.ch/utilities/js/live-dom-viewer/)
+
+## Walking the DOM
+
+A picture depicting links to traverse DOM:
+
+![DOM Traversal Picture](http://javascript.info/article/dom-navigation/dom-links@2x.png)
+
+Important Mappings:
+- `<html>` = `document.documentElement`
+- `<body>` = `document.body`
+- `<head>` = `document.head` (Not shown in diagram)
+
+The body element does not exist until it is parsed by browser:
+```htmlmixed=
+<html>
+    
+<head>
+  <script>
+    alert( "From HEAD: " + document.body ); // null, there's no <body> yet (Doesn't exist)
+  </script>
+</head>
+
+<body>
+
+  <script>
+    alert( "From BODY: " + document.body ); // HTMLBodyElement, now it exists
+  </script>
+
+</body>
+</html>
+```
+
+### Child Nodes & Descendants
+
+1. The `childNodes` collection (an **HTMLCollection**) provides access to all child nodes, including text nodes.
+
+```htmlmixed=
+<html>
+<body>
+  <div>Begin</div>
+
+  <ul>
+    <li>Information</li>
+  </ul>
+
+  <div>End</div>
+
+  <script>
+    for (let i = 0; i < document.body.childNodes.length; i++) {
+      alert( document.body.childNodes[i] ); // Text, DIV, Text, UL, ..., SCRIPT
+    }
+  </script>
+  ...more stuff...
+</body>
+</html>
+```
+
+2. Properties `firstChild` and `lastChild` give fast access to the first and last children.
+
+```javascript=
+elem.childNodes[0] === elem.firstChild
+elem.childNodes[elem.childNodes.length - 1] === elem.lastChild
+```
+
+3. Check if a Node has Child Nodes: `elem.hasChildNodes()` checks whether there are any child nodes.
+
+**A Note On HTMLCollections**:
+1. They are "array-like" but not arrays. It will have a `length` property though.
+2. Other array methods won’t work (Ex: `filter`), because it’s not an array. 
+3. DOM collections are **read-only**. `childNodes[i] = ....` will not replace it (error!).
+4. **Important** DOM collections are "live" - reflect the current state of DOM. For example, If we keep a reference to `elem.childNodes`, and add/remove nodes into DOM, then they appear in the collection *automatically*.
+5. **Don’t use** `for..in` to loop over collections. The `for..in` loop iterates over all *enumerable* properties. And collections have some “extra” rarely used properties that we usually do not want to get.
+6. We can use `for..of` to iterate over it:
+```
+for (let node of document.body.childNodes) {
+  alert(node); // shows all nodes from the collection
+}
+```
+That’s because it’s iterable (provides the Symbol.iterator property, as required).
+
+**Converting HTMLCollections to Actual Array:**
+
+We can use `Array.from` to create a “real” array from the collection, if we want array methods:
+```javascript=
+document.body.childNodes.filter; // undefined (there's no filter method!)
+Array.from(document.body.childNodes).filter; // now it's there
+```
+
+### Siblings & Element Siblings
+
+Siblings are nodes that are children of the same parent. For instance, `<head>` and `<body>` are siblings:
+
+The next node in the same parent (next sibling) is `nextSibling`, and the previous one is `previousSibling`.
+
+The parent is available as `parentNode`.
+
+For instance:
+```htmlmixed=
+ <html><head></head><body><script>
+  // HTML is "dense" to evade extra "blank" text nodes.
+
+  // parent of <body> is <html>
+  alert( document.body.parentNode === document.documentElement ); // true
+
+  // after <head> goes <body>
+  alert( document.head.nextSibling ); // HTMLBodyElement
+
+  // before <body> goes <head>
+  alert( document.body.previousSibling ); // HTMLHeadElement
+</script></body></html>
+```
+
+**Element-only Navigation:**
+For many tasks we don’t want `text` or `comment` nodes. We want to manipulate element nodes that represent tags and form the structure of the page.
+
+![Element Navigation](http://javascript.info/article/dom-navigation/dom-links-elements@2x.png)
+
+| Node Navigation | Element Navigation |
+| --------------- | ------------------ |
+| `parentNode`    | `parentElement`    |
+| `childNodes`    | `children`         |
+| `firstChild`    | `firstElementChild`|
+| `lastChild`     | `lastElementChild` |
+| `previousSibling` | `previousElementSibling` |
+| `nextSibling`   | `nextElementSibling` |
+
+`parentNode` vs `parentElement` (An Exception):
+```javascript=
+// <html> element parent node (document) is not an element.
+alert( document.documentElement.parentNode ); // document
+alert( document.documentElement.parentElement ); // null
+```
+
+### Some Elements Have Additional Links: 
+
+Apart from the links to parent, child, siblings, etc. some elements have additional links.
+
+1. `<table>` has the following:
+    - `table.rows` – the collection of `<tr>` elements of the table.
+    - `table.caption/tHead/tFoot` – references to elements `<caption>`, `<thead>`, `<tfoot>`.
+    - `table.tBodies` – the collection of `<tbody>` elements (can be many according to the standard).
+2. `<thead>`, `<tfoot>`, `<tbody>` elements provide the rows property:
+    - `tbody.rows` – the collection of `<tr>` inside.
+3. `<tr>` has the following:
+    - `tr.cells` – the collection of `<td>` and `<th>` cells inside the given `<tr>`.
+    - `tr.sectionRowIndex` – the number of the given `<tr>` inside the enclosing `<thead>`/`<tbody>`
+    - `tr.rowIndex` – the number of the `<tr>` in the table.
+4. `<td>` and `<th>` have:
+    - `td.cellIndex` – the number of the cell inside the enclosing `<tr>`. 
+
+
