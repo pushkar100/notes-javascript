@@ -1013,3 +1013,190 @@ The method `elem.closest(css)` looks the nearest ancestor that matches the CSS-s
 | getElementsByClassName  |	class             |	✔                       |	✔  |
 | querySelector	          | CSS-selector      | ✔                       |	-  |
 | querySelectorAll        |	CSS-selector      |	✔                       |	-  |
+
+## Node properties: type, tag and contents
+
+### Node Classes
+
+![Node Classes](http://javascript.info/article/basic-dom-node-properties/dom-class-hierarchy@2x.png)
+
+DOM nodes have different properties depending on their **class**. Ex: `<a>` and `<input>` have different properties (href vs name/type).
+
+- `EventTarget` – is the root “abstract” class. Objects of that class are never created. It serves as a base. But, it has an important functionality, that is, it gives support for **events**.
+- `Node` – is also an “abstract” class, serving as a base for **DOM nodes**. It provides the core tree functionality: `parentNode`, `nextSibling`, `childNodes` and so on (they are getters). Objects of this class are also never created. `Text`, `Element` and `Comment` Classes inherit from it.
+- `Element` – is a base class for **DOM elements**. It provides element-level navigation like `nextElementSibling`, `children` and searching methods like `getElementsByTagName`, `querySelector`. It's a base class for different kind of elements (`SVGElement`, `XMLElement` and `HTMLElement`).
+- `HTMLElement` – is finally the basic class for all HTML elements. It is inherited by various HTML elements(`HTML*Element`):
+    - `HTMLInputElement` – the class for `<input>` elements,
+    - `HTMLBodyElement` – the class for `<body>` elements,
+    - `HTMLAnchorElement` – the class for `<a>` elements 
+    - ... and so on.
+
+**Example of inheritance:**
+
+`<input>` element inherits from `HTMLInputElement`, `HTMLElement`, `Element`, `Node`, `EventTarget`, and finally `Object` which is a pure JS Object class (gives methods like `hasOwnProperty`, etc).
+
+An object usually has the `constructor` property. It references to the class constructor, and `constructor.name` is its name:
+```javascript=
+document.body.constructor.name; // f HTMLBodyElement() [The function]
+document.body.__proto__; // > HTMLBodyElement [The function's prototype object]
+```
+
+```javascript=
+alert( document.body instanceof HTMLBodyElement ); // true
+alert( document.body instanceof HTMLElement ); // true
+alert( document.body instanceof Element ); // true
+alert( document.body instanceof Node ); // true
+alert( document.body instanceof EventTarget ); // true
+```
+
+**DOM nodes are regular JavaScript objects. They use prototype-based classes for inheritance.**
+
+**Note:**
+- `document` is an instance of `HTMLDocument` class.
+- `HTMLDocument` inherits from `Document` class which inherits from `Node` class.
+
+```javascript=
+alert(HTMLDocument.prototype.constructor.name); // HTMLDocument
+alert(HTMLDocument.prototype.__proto__.constructor.name); // Document
+alert(HTMLDocument.prototype.__proto__.__proto__.constructor.name); // Node
+```
+
+**Note: `console.dir(elem)` versus `console.log(elem)`**
+- `console.log(elem)` shows the *element DOM tree*.
+- `console.dir(elem)` shows the element as a *DOM object*, good to explore its *properties*.
+
+### `nodeType`, `nodeName` & `tagName`
+
+1. `nodeType` property provides an old-fashioned way to get the “type” of a DOM node. It has a numeric value.
+
+```javascript=
+elem.nodeType === 1; // element nodes,
+elem.nodeType === 3; // text nodes, ... so on.
+```
+
+2. `tagName` property exists only for Element nodes.
+3. `nodeName` is defined for any Node: for elements it means the *same as* `tagName`. For other node types (text, comment etc) it has a *string with the node type*.
+
+```javascript=
+<body><!-- comment -->
+
+  <script>
+    // for comment
+    alert( document.body.firstChild.tagName ); // undefined (not element)
+    alert( document.body.firstChild.nodeName ); // #comment
+
+    // for document
+    alert( document.tagName ); // undefined (not element)
+    alert( document.nodeName ); // #document
+
+    alert( document.body.nodeName ); // BODY`
+    alert( document.body.tagName ); // BODY`
+  </script>
+</body>
+```
+
+### Node Contents:
+
+1. `innerHTML` (getter & setter) allows to get/set the HTML **inside** the element as a **string**.
+    - If innerHTML inserts a `<script>` tag into the document – it **doesn’t execute**.
+    - Browser fixes broken HTML in string before insertion.
+
+```javascript=
+alert( document.body.innerHTML ); // read the current contents
+document.body.innerHTML = 'The new BODY!'; // replace it
+```
+
+**Caution:** Appending using `innerHTML+=`:
+- The old content is removed.
+- The new innerHTML is written instead (a concatenation of the old and the new one).
+- All images and other resources will be reloaded (hopefully they are cached).
+- Other side-effects: mouse selected text is gone, input fields cleared.
+
+```javascript=
+chatDiv.innerHTML += "<div>Hello<img src='smile.gif'/> !</div>";
+chatDiv.innerHTML += "How goes?";
+
+elem.innerHTML += "...";
+// is a shorter way to write:
+elem.innerHTML = elem.innerHTML + "..."
+```
+
+2. `outerHTML` (getter & setter) does *not* change the element. Instead, it replaces it as a whole in the outer context.
+    - `outerHTML` assignment does *not* modify the DOM element, but extracts it from the outer context and inserts a new piece of HTML instead of it.
+    - We can get a reference to new elements by querying DOM again.
+
+```htmlmixed=
+<div>Hello, world!</div>
+
+<script>
+  let div = document.querySelector('div');
+
+  // replace div.outerHTML with <p>...</p>
+  div.outerHTML = '<p>A new element!</p>'; // (*)
+
+  // Wow! The div is still the same!
+  alert(div.outerHTML); // <div>Hello, world!</div>
+</script>
+```
+
+3. Text & Comment Node Values: `nodeValue` and `data` (almost identical). Use `data`.
+
+```htmlmixed=
+<body>
+  Hello
+  <!-- Comment -->
+  <script>
+    let text = document.body.firstChild;
+    alert(text.data); // Hello
+
+    let comment = text.nextSibling;
+    alert(comment.data); // Comment
+  </script>
+</body>
+```
+
+4. `textContent`: (Getter & Setter) Gets only the text inside an element (minus the `<tags>`).
+    - If text to be set contains html tags, it is put in as text only (innerHTML would have parsed it).
+    - `textContent` is much more useful, because it allows to write text the “safe way”.
+
+```htmlmixed=
+<div id="news">
+  <h1>Headline!</h1>
+  <p>Martians attack people!</p>
+</div>
+
+<script>
+  // Headline! Martians attack people!
+  alert(news.textContent);
+</script>
+```
+
+```htmlmixed=
+<!-- Run it and see! -->
+<div id="elem1"></div>
+<div id="elem2"></div>
+
+<script>
+  let name = prompt("What's your name?", "<b>Winnie-the-pooh!</b>");
+
+  elem1.innerHTML = name;
+  elem2.textContent = name;
+</script>
+```
+
+### More Node Properties
+
+1. `value` – the value for `<input>`, `<select>` and `<textarea>` (`HTMLInputElement`, `HTMLSelectElement`, ...)
+2. `href` – the “href” for `<a href="...">` (`HTMLAnchorElement`).
+3. `id` – the value of “id” attribute, for all elements (`HTMLElement`).
+4. ETC..
+
+```htmlmixed=
+<input type="text" id="elem" value="value">
+
+<script>
+  alert(elem.type); // "text"
+  alert(elem.id); // "elem"
+  alert(elem.value); // value
+</script>
+```
