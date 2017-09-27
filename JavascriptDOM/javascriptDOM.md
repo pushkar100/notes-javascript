@@ -1200,3 +1200,139 @@ elem.innerHTML = elem.innerHTML + "..."
   alert(elem.value); // value
 </script>
 ```
+## Attributes (HTML) & Properties (DOM)
+
+Most common attributes of an element becomes its property. Ex: If the tag is `<body id="page">`, then the DOM object has `body.id="page"`. But, the mapping is **not 1:1** between attrs. & props.
+
+### DOM Properties
+
+DOM properties and methods behave just like those of *regular JavaScript objects*. We can add properties and methods to DOM objects and invoke them.
+
+```javascript=
+document.body.myData = {
+  name: 'Caesar',
+  title: 'Imperator'
+};
+
+alert(document.body.myData.title); // Imperator
+
+// ------
+
+document.body.sayHi = function() {
+  alert(this.tagName);
+};
+
+document.body.sayHi(); // BODY (the value of "this" in the method is document.body)
+
+// ------
+
+Element.prototype.sayHi = function() {
+  alert(`Hello, I'm ${this.tagName}`);
+};
+
+document.documentElement.sayHi(); // Hello, I'm HTML
+document.body.sayHi(); // Hello, I'm BODY
+```
+
+### HTML Attributes
+
+When browser reads/parses the HTML, it identifies attributes of elements.
+
+There can be two types of attributes:
+1. "Standard Attributes" - `type` for `<input>`, `href` for `<a>`, etc.
+2. Non-standard Attributes - Custom attributes, mismatched attributes & types (`type` for `<a>`), etc.
+
+When an element has a standard attribute, the *corresponding property gets created*. But that doesn’t happen if the attribute is non-standard.
+
+```htmlmixed=
+<body id="test" something="non-standard">
+  <script>
+    alert(document.body.id); // test
+    // non-standard attribute does not yield a property
+    alert(document.body.something); // undefined
+  </script>
+</body>
+```
+
+All attributes (std and non-std) are accessible using following methods:
+1. `elem.hasAttribute(name)` – checks for existence.
+2. `elem.getAttribute(name)` – gets the value.
+3. `elem.setAttribute(name, value)` – sets the value.
+4. `elem.removeAttribute(name)` – removes the attribute.
+5. `elem.attributes` - a collection of objects (attributes) with each object having `name` and `value` properties (attribute names and values)
+
+```htmlmixed=
+<body something="non-standard">
+  <script>
+    alert(document.body.getAttribute('something')); // non-standard
+  </script>
+</body>
+```
+
+HTML **attributes** have following features:
+- Their name is **case-insensitive** (that’s HTML: `id` is same as `ID`).
+- They are **always strings**.
+
+Property-attribute synchronization:
+- In most cases, when a standard attribute changes, the corresponding property is auto-updated (& vice-versa).
+- There are exceptions, like `input.value` synchronizes only from attribute → to property, but not back (attribute not updated if property is changed).
+- Attribute names are case-insensitive while property names are case-sensitive.
+- **Important** HTML Attributes are always strings but DOM properties need not be only strings:
+    - For instance, input.checked property (for checkboxes) is boolean
+    - The style attribute is a string, but style property is an object
+    - Even if a DOM property type is a string, it may differ from the corresponding attribute!
+
+```htmlmixed=
+<input id="input" type="checkbox" checked> checkbox
+
+<script>
+  alert(input.getAttribute('checked')); // the attribute value is: empty string
+  alert(input.checked); // the property value is: true
+</script>
+```
+
+```htmlmixed=
+<div id="div" style="color:red;font-size:120%">Hello</div>
+
+<script>
+  // string
+  alert(div.getAttribute('style')); // color:red;font-size:120%
+
+  // object
+  alert(div.style); // [object CSSStyleDeclaration]
+  alert(div.style.color); // red
+</script>
+```
+
+```htmlmixed=
+<!-- href DOM property is always a full URL, even if the attribute contains a relative URL or just a #hash. -->
+<a id="a" href="#hello">link</a>
+<script>
+  // attribute
+  alert(a.getAttribute('href')); // #hello
+
+  // property
+  alert(a.href ); // full URL in the form http://site.com/page#hello
+</script>
+```
+
+### Non-Standard Attributes in `dataset`
+
+Using non-standard attributes may pollute the global space and in case some attribute name gets standardized later in the DOM, there will be conflicts between attributes.
+
+Therefore, DOM provides us with `data-*` prefixed attributes. All attributes starting with “data-” are *reserved for programmers’ use*. They are available in `dataset` property.
+
+Example: 
+- If an elem has an attribute named "data-about", it’s available as `elem.dataset.about`.
+- Multiword attributes like `data-order-state` become **camel-cased**: `dataset.orderState`.
+- Using `data-*` attributes is a *valid, safe way* to pass *custom data*.
+
+```htmlmixed=
+<body data-about="Elephants">
+<div data-order-state="new"></div>
+<script>
+  alert(document.body.dataset.about); // Elephants
+alert(order.dataset.orderState); // new
+</script>
+```
+
