@@ -1502,3 +1502,116 @@ Advantage of `document.write`:
 - That gives us the upside – it works blazingly fast, because there’s *no DOM modification*. It writes directly into the page text, while the DOM is not yet built, and the browser puts it into DOM at generation-time.
 
 `document.write` is rarely used now. Only seen in older scripts.
+
+## Styles & Classes:
+
+There are generally two ways to style an element:
+- Create a class in CSS and add it: `<div class="...">`
+- Write properties directly into style: `<div style="...">`.
+
+CSS is always the preferred way – not only for HTML, but in JavaScript as well. We should only manipulate the style property if classes “can’t handle it”.
+
+For instance, style is acceptable if we calculate coordinates of an element dynamically and want to set them from JavaScript, like this:
+```javascript=
+let top = /* complex calculations */;
+let left = /* complex calculations */;
+elem.style.left = left; // e.g '123px'
+elem.style.top = top; // e.g '456px'
+```
+
+In the ancient time, there was a limitation in JavaScript: a reserved word like "class" could not be an object property. That limitation does not exist now, but at that time it was impossible to have a "class" property, like elem.class.
+
+So for classes the similar-looking property "className" was introduced: the `elem.className` corresponds to the "class" attribute.
+
+```htmlmixed=
+<body class="main page">
+  <script>
+    alert(document.body.className); // main page
+  </script>
+</body>
+```
+
+1. If we assign something to `elem.className`, it replaces the whole strings of classes.
+2. `elem.classList` is a special object with methods to `add`/`remove`/`toggle` classes. `classList` is *iterable*.
+
+- `elem.classList.add/remove("class")` – adds/removes the class.
+- `elem.classList.toggle("class")` – if the class exists, then removes it, otherwise adds it.
+- `elem.classList.contains("class")` – returns `true`/`false`, checks for the given class.
+
+```htmlmixed=
+<body class="main page">
+  <script>
+    // add a class
+    document.body.classList.add('article');
+    alert(document.body.className); // main page article
+  </script>
+</body>
+```
+
+### Element Style
+
+`elem.style` is an object that corresponds to what’s written in the "style" attribute.
+
+```
+background-color  => elem.style.backgroundColor
+z-index           => elem.style.zIndex
+border-left-width => elem.style.borderLeftWidth
+```
+
+For browser-prefixed properties like `-moz-border-radius`, `-webkit-border-radius`:
+```javascript=
+button.style.MozBorderRadius = '5px';
+button.style.WebkitBorderRadius = '5px';
+```
+
+**Resetting Style Back to CSS Declarations:** `elem.style.display = ""`.
+
+If we set `display` to an empty string, then the browser applies CSS classes and its built-in styles normally, as if there were no such `style` property at all.
+
+**Full Rewrite of Styles:** `style.cssText` (We rarely use it)
+```javascript=
+// we can set special style flags like "important" here
+  div.style.cssText=`color: red !important;
+    background-color: yellow;
+    width: 100px;
+    text-align: center;
+  `;
+```
+
+**Reading Computed Styles:**
+- The `style` property operates only on the value of the "style" attribute, without any CSS cascade.
+- So we can’t read anything that comes from CSS classes using `elem.style`.
+
+```htmlmixed=
+<head>
+  <style> body { color: red; margin: 5px } </style>
+</head>
+<body>
+
+  The red text
+  <script>
+    alert(document.body.style.color); // empty
+    alert(document.body.style.marginTop); // empty
+  </script>
+</body>
+```
+
+Reading Browser Computed Styles: `getComputedStyle(element[, pseudo])` (The result is an **object** with style properties, like `elem.style`, but now with respect to all CSS classes.)
+
+```htmlmixed=
+<head>
+  <style> body { color: red; margin: 5px } </style>
+</head>
+<body>
+
+  <script>
+    let computedStyle = getComputedStyle(document.body);
+    // now we can read the margin and the color from it
+    alert( computedStyle.marginTop ); // 5px
+    alert( computedStyle.color ); // rgb(255, 0, 0)
+  </script>
+</body>
+```
+
+**Note:** `getComputedStyle` requires the *full property name*. Ex. `paddingLeft` works but not `padding` (shorthand).
+
