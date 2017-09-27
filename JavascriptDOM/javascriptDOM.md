@@ -1336,3 +1336,169 @@ alert(order.dataset.orderState); // new
 </script>
 ```
 
+## Modifying the Document
+
+**1. Creating An Element:**
+- Creating a tag element: `document.createElement(tag)`
+- Creating a text node: `document.createTextNode(text)`
+
+Properties can be added to the created element (Note that class property is added via `className`).
+
+```javascript=
+let div = document.createElement('div');
+div.className = "alert alert-success";
+div.innerHTML = "<strong>Hi there!</strong> You've read an important message.";
+```
+
+**2. Inserting A (Newly Created) Element (Using Parent Element):**
+- `parentElem.appendChild(node)`: Appends node as the last child of parentElem.
+- `parentElem.insertBefore(node, nextSibling)`: Inserts node before nextSibling into parentElem.
+- `parentElem.replaceChild(node, oldChild)`: Replaces oldChild with node among children of parentElem.
+
+All these methods **return** the **inserted node**.
+
+Examples:
+```javascript=
+list.appendChild(newLi);
+list.insertBefore(newLi, list.firstChild);
+```
+
+**3. New methods to insert element as Node/String (Old browsers don't support them):**
+- `node.append(...nodes or strings)` – append nodes or strings at the end of node,
+- `node.prepend(...nodes or strings)` – insert nodes or strings into the beginning of node,
+- `node.before(...nodes or strings)` - insert nodes or strings before the node,
+- `node.after(...nodes or strings)` - insert nodes or strings after the node,
+- `node.replaceWith(...nodes or strings)` - replaces node with the given nodes or strings.
+
+These methods give us **flexibility** (appending string or a node).
+
+```htmlmixed=
+<ol id="ol">
+  <li>0</li>
+  <li>1</li>
+  <li>2</li>
+</ol>
+
+<script>
+  ol.before('before');
+  ol.after('after');
+
+  let prepend = document.createElement('li');
+  prepend.innerHTML = 'prepend';
+  ol.prepend(prepend);
+
+  let append = document.createElement('li');
+  append.innerHTML = 'append';
+  ol.append(append);
+</script>
+```
+
+![Example's image](http://javascript.info/article/modifying-document/before-prepend-append-after@2x.png)
+
+**Note:** 
+- These methods can insert multiple list of nodes and text pieces in a single call. (2nd arg, 3rd arg, ...)
+- All text is inserted as text. (Safe way - like in `textContent`).
+
+```htmlmixed=
+<div id="div"></div>
+<script>
+  div.before('<p>Hello</p>', document.createElement('hr'));
+</script>
+
+<!-- Final HTML: -->
+&lt;p&gt;Hello&lt;/p&gt;
+<hr>
+<div id="div"></div>
+```
+
+**4. Inserting string as HTML (and not text):**
+- `elem.insertAdjacentHTML(where, html)`
+- `where` is a string that can be one of the following:
+    - `"beforebegin"` – insert html before elem,
+    - `"afterbegin"` – insert html into elem, at the beginning,
+    - `"beforeend"` – insert html into elem, at the end,
+    - `"afterend"` – insert html after elem.
+- The second parameter is an HTML string, inserted “as is”.
+
+Example:
+```htmlmixed=
+<div id="div"></div>
+<script>
+  div.insertAdjacentHTML('beforebegin', '<p>Hello</p>');
+  div.insertAdjacentHTML('afterend', '<p>Bye</p>');
+</script>
+
+<!-- Final HTML: -->
+<p>Hello</p>
+<div id="div"></div>
+<p>Bye</p>
+```
+
+![Visualization](http://javascript.info/article/modifying-document/insert-adjacent@2x.png)
+
+
+**Alternatives for text & nodes:**
+- `elem.insertAdjacentText(where, text)` – the same syntax, but a string of text in inserted “as text” instead of HTML.
+- `elem.insertAdjacentElement(where, elem)` – the same syntax, but inserts an element.
+
+**5. Cloning Nodes (`cloneNode`):**
+- The call `elem.cloneNode(true)` creates a “deep” clone of the element – with all attributes and subelements.
+-  If we call `elem.cloneNode(false)`, then the clone is made without child elements.
+
+
+```htmlmixed=
+<div class="alert" id="div">
+  <strong>Hi there!</strong> You've read an important message.
+</div>
+
+<script>
+  let div2 = div.cloneNode(true); // clone the message
+  div2.querySelector('strong').innerHTML = 'Bye there!'; // change the clone
+
+  div.after(div2); // show the clone after the existing div
+</script>
+```
+
+**6. Removing Nodes:**
+- `parentElem.removeChild(node)`: Removes `elem` from `parentElem` (assuming it’s a child).
+- `node.remove()`: Removes the `node` from its place.
+
+**Note:** All insertion methods automatically remove the node from the old place.
+
+```htmlmixed=
+<div id="first">First</div>
+<div id="second">Second</div>
+<script>
+  // no need to call remove
+  second.after(first); // take #second and after it - insert #first
+</script>
+```
+
+**7. Ancient Methods of Inserting to DOM:**
+- `document.write`.
+
+```htmlmixed=
+<p>Somewhere in the page...</p>
+<script>
+  document.write('<b>Hello from JS</b>');
+</script>
+<p>The end</p>
+```
+
+The call to `document.write(html)` writes the html into page “right here and now”. The html string can be dynamically generated, so it’s kind of flexible. We can use JavaScript to create a full-fledged webpage and write it.
+
+**The call to document.write only works while the page is loading.** If we call it afterwards, the existing document content is **erased**. So it’s kind of unusable at “after loaded” stage, unlike other DOM methods we covered above.
+
+```htmlmixed=
+<p>After one second the contents of this page will be replaced...</p>
+<script>
+  // document.write after 1 second
+  // that's after the page loaded, so it erases the existing content
+  setTimeout(() => document.write('<b>...By this.</b>'), 1000);
+</script>
+```
+Advantage of `document.write`:
+- Technically, when `document.write` is called while the browser is still reading HTML, it appends something to it, and the browser consumes it just as it were initially there.
+- That gives us the upside – it works blazingly fast, because there’s *no DOM modification*. It writes directly into the page text, while the DOM is not yet built, and the browser puts it into DOM at generation-time.
+
+`document.write` is rarely used now. Only seen in older scripts.
