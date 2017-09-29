@@ -451,6 +451,41 @@ Using events is known as:
 
 We can emit events for use *within the same module* as well. The reason this is good is that if there are other listeners that need to do something on the same event, it will help them as well. In contrast, had we done a direct call to a paricular function within the module, the listeners would not become aware of it and not do their bit.
 
+## Factory vs Singleton:
+
+Everytime we need to have only a single instance of an object, we will use modules to create singleton (a single object). No matter how many times we initialize it, only one instance is created.
+
+```javascript=
+var Factory = (function Factory() {
+	...
+	var publicAPI = { ... };
+	return publicAPI;
+})();
+
+var factObj1 = Factory();
+var factObj2 = Factory();
+
+factObj1 === factObj2; // true
+```
+
+When we want to create instances of objects continuously from a blueprint, we invoke the factory function as many times as the number of objects we need to create.
+
+```javascript=
+var Factory = function Factory() {
+	...
+	var publicAPI = { ... };
+	return publicAPI;
+};
+
+var factObj1 = Factory();
+var factObj2 = Factory();
+
+factObj1 !== factObj2; // true
+
+factObj1.init();
+factObj2.init();
+```
+
 # Server Side JavaScript (Not Covered)
 
 ## Middle End Architecture
