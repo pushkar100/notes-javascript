@@ -462,8 +462,8 @@ var Factory = (function Factory() {
 	return publicAPI;
 })();
 
-var factObj1 = Factory();
-var factObj2 = Factory();
+var factObj1 = Factory;
+var factObj2 = Factory;
 
 factObj1 === factObj2; // true
 ```
