@@ -1923,6 +1923,11 @@ console.log('Starting socket.io server...');
 
 On the client side:
 
+- We need to include the `socket.io` script meant for client-side communication (Download it or use a CDN).
+- Create a socket object with `io(<http-server>)`. Notice how we send an HTTP domain (instead of `ws://`).
+- The socket object can listen to events with `on()` and emit events with `emit()`. The `'connect'` event is emitted when a connection is made and `'disconnect'` event is emitted when the socket connection is broken/ends.
+- Other listeners and emitters deal with custom events (such as `'chat'` and `'message'` in the example).
+
 ```html
 <!-- index.html -->
 <!DOCTYPE html>
