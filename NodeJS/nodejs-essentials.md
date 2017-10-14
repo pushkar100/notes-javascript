@@ -1729,6 +1729,7 @@ app.delete('/synonyms-api/:term', function(req, res) {
 We can capture routing variables by placing *a colon(:) prefixed variable name in the path of the request* (As in the above example). This variable will later hold the actual value of that part of the path and is accessible via the request object' `params` property. For example, `req.params.term` will capture `term` routing variable in the URL/path. If the route had `/synonyms-api/:term` and the actual URL was `/synonyms-api/marvel` then `term` would be `marvel`. 
 
 [Full List of Express' Response Object and its methods](https://www.javatpoint.com/expressjs-response)
+
 [Full List of Express' Request Object and its methods](https://www.javatpoint.com/expressjs-request)
 
 ## Web Sockets
