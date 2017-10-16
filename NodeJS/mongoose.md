@@ -310,6 +310,8 @@ Mongoose Methods Methods can also be defined on a mongoose schema. These are lik
 
 We can run some of them ass either `pre`  (before some operation) or `post` (after some operation).
 
+It is also better to query based on `_id` of the document since every doc has a unique id and they are indexed, so searching using ids will be faster. If you can use `findById()` method then do so.
+
 [Scotch IO tutorial on using mongoose (CRUD operations) and methods](https://scotch.io/tutorials/using-mongoosejs-in-node-js-and-mongodb-applications)
 
 ## Using Promises in mongoose
