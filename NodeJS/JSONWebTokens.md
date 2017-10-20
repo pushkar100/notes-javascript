@@ -1,5 +1,7 @@
 # JSON Web Tokens (JWT)
 
+[Learn how JWT Works](https://jwt.io/)
+
 [Github Page for `jsonwebtoken`](https://github.com/auth0/node-jsonwebtoken)
 
 **Steps** to Install and Use JWT:
