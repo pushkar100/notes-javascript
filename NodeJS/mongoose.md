@@ -319,3 +319,7 @@ It is also better to query based on `_id` of the document since every doc has a 
 [Switching to promises in mongoose (2015)](https://eddywashere.com/blog/switching-out-callbacks-with-promises-in-mongoose/)
 
 [ES6 Promises in mongoose](http://erikaybar.name/using-es6-promises-with-mongoosejs-queries/)
+
+## Using `populate()` to fetch referenced collection documents into current collection
+
+[Official doc for `populate()`](http://mongoosejs.com/docs/populate.html)
