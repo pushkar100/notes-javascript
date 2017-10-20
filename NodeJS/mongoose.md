@@ -323,3 +323,4 @@ It is also better to query based on `_id` of the document since every doc has a 
 ## Using `populate()` to fetch referenced collection documents into current collection
 
 [Official doc for `populate()`](http://mongoosejs.com/docs/populate.html)
+[StackOverFlow answers for `populate()`](https://stackoverflow.com/questions/13026486/how-to-populate-a-sub-document-in-mongoose-after-creating-it)
