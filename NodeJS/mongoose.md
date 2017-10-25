@@ -328,7 +328,9 @@ It is also better to query based on `_id` of the document since every doc has a 
 ## Retrieving only certain fields in mongoose to protect passwords from queries:
 
 From a find query:
+
 [StackOverFlow](https://stackoverflow.com/questions/9548186/mongoose-use-of-select-method)
 
-Inside populate:
+Inside populate or using `select('+field -field')`:
+
 [StackOverFlow](https://stackoverflow.com/questions/12096262/how-to-protect-the-password-field-in-mongoose-mongodb-so-it-wont-return-in-a-qu)
