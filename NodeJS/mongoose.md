@@ -331,6 +331,6 @@ From a find query:
 
 [StackOverFlow](https://stackoverflow.com/questions/9548186/mongoose-use-of-select-method)
 
-Inside populate or using `select('+field -field')`:
+Inside `populate()` or using `select('+field -field')`:
 
 [StackOverFlow](https://stackoverflow.com/questions/12096262/how-to-protect-the-password-field-in-mongoose-mongodb-so-it-wont-return-in-a-qu)
