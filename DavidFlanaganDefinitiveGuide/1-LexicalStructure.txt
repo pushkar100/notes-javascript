@@ -35,3 +35,9 @@
 - Two exceptions to Automatic Semicolon Insertion:
 - 1. return, break, continue => A line break is always treated as a semicolon (So, don't insert line break btw return and return expr.)
 - 2. ++ & -- operators => A line break is always treated as a semicolon. These operators are always considered prefix unless they are on the same line as the variable (i.e x++).
+
+
+
+
+
+
