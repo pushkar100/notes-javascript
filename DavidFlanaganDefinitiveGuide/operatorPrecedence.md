@@ -116,3 +116,7 @@ Precedence levels: ***Highest to Lowest***
 	10. (C)omma
 
 The acronym you end up with is: **`U.n-HiLo-SGEA-T.A.C`** (Remember this to remember precendence & associativity)
+
+**Note:**
+1. Operator precedence can be **overridden** with the explicit use of parentheses `()`.
+2. Property access (`.` or `[]`) and invocation expressions (Ex: `f()`) have **higher precedence** than any of the operators listed above.
