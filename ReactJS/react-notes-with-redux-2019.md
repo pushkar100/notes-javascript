@@ -1643,7 +1643,7 @@ A: A ***store*** in Redux is essentially the assembly of a collection of differe
 **Q: What is inside the `redux` library?**
 A: It contains many methods. The two most important ones are:
 
-1. **`combineReducers`**: Takes an object whose properties are set to the different reducers (Ex: departments)
+1. **`combineReducers`**: Takes an object containing all the reducers we want to use. Properties are set to the different reducers (Ex: departments)
 2. **`createStore`**: Takes in the `combineReducers` function, creates and returns a ***store***
 
 **Methods available on the created "store"**
@@ -1805,6 +1805,12 @@ A: It has property names that match the key names of the reducer properties pass
 **Q: What does `dispatch` do?**
 A: It helps Redux perform *one full cycle* of all the redux operations. That is, take  action (form), send it to all the reducers (departments), update state (central repo of all the data of all departments).
 
+**Q: What is the importance of an action creator?**
+A: Action creator is the only way we can change the state in Redux. We use it to dispatch an action! Without action creator, nothing in that cycle is executed
+
+**Q: Is payload mandatory in an action object?**
+A: ***No***, payload is optional but type is mandatory. Also, payload need not always be an object, it can be any javascript value
+
 **An Important Note on Redux**
 
 One important thing about Redux is that we can only modify data in the state only through these cycle methods provided. There is *NO WAY* in which we can directly access the central state object maintained by redux and manipulate it
@@ -1859,6 +1865,7 @@ SongList          SongDetail
 ===========================================
 
 Redux
+|
 |_________ Reducers
 |          |_________ Song List Reducer
 |          |_________ Selected Song Reducer
@@ -1866,4 +1873,508 @@ Redux
 |_________ Action Creators
            |_________ Select Song
 ```
+
+**The React Redux System (Context System)**
+
+In the React-Redux system, props are not the primary way of sharing data. There is something known as the *context way of sharing*.
+
+*Advantage*: The React-Redux system allows any parent to share data directly with any child component ***even if there are other components between them***. (Note that in component state system, every component will pass on props one-level at a time)
+
+**A manageable structure (Opionated)**
+
+A good way to use Redux in React is to have a *Provider* and a *Connect* component. Provider will access the redux store and sits on top of our top-level component in the app (i.e. Provider becomes the root component of our app). 
+
+Then, when any other component in the hierarchy decides to share data with its child component, we place the Connect component in between them. Connect will essentially access the Provider to fetch the data in the store and also interacts with action creators to finally send the child component some data and action information. Therefore, Connect is configurable
+
+![A React Redux App FlowChart](https://i.ibb.co/hdpdwLv/Screen-Shot-2018-12-30-at-11-23-32-AM.png)
+
+**Methods provided by the `react-redux` library**
+
+`react-redux` provides the `Provider` and `connect` components from its library (We do not have to define our own Provider and Connect)
+
+Inside our project, we must wrap our main component (root), say `<App />`, with the `<Provider>` component. 
+
+The `Provider` takes one prop called `store`. Remember that store is basically an object of reducers (that were registed by the `combineReducers` method) with key names becoming the reference to the data structure that will be associated with each reducer. And, the collection of all these data structures constitutes the state
+
+To `connect` a component (child component) with the `Provider`, we import and include it in our child component using the following syntax: 
+
+`connect()(<ComponentName>)`: The function returns a function to which we pass our component as param
+
+**Using `Provider`:**
+
+1. It needs to be imported in the root javascript file of our project (Ex: `src/index.js`). Not mandatory, but if you are going to define the redux on the entire app then the whole app needs to be wrapped by the provider. This can be done in the file which imports our main app - the `src/index.js` file
+2. Use the `Provider` component to wrap our project's main component (Ex: `<App />`). 
+3. Pass `<Provider />` a prop called `store` to which we assign the redux store 
+
+**Configuring `connect`:**
+
+1. Import `connect` to our component
+2. The `connect` function takes in as the first argument a *function* (it is called **`mapStateToProps`** by *convention*, but not mandatorily). This function gets the redux ***state*** as its argument (i.e All the data inside the redux store as state gets passed to this function). The object that we *return* from this function is going to show up as the `props` inside our component
+3. The `connect` function also takes in a second argument, this time an *object*. The properties of this object too are added to the `props` of our component. We use this object to pass in the *action creator* functions
+4. **Note**: Now, inside the `props` of our component, if we call the action creator that is available, the action object that is returned ***automatically*** gets *dispatched* (Internally, `store.dispatch`). And, whenever an action is dispatched, the reducers use it to process the existing data in the state and of course, update the state if required
+5. Export `connect(mapStateToProps)(<OurComponent>)` instead of just exporting `<OurComponent>`
+
+**Notes on `connect`**: 
+
+- It needs to be imported only inside a component that wants to access the store present in the `Provider`
+- When a component uses `connect` to get its `props` object from the Redux *state*, the props also contain a reference to the store's `dispatch` method
+- However, if an action creator is sent in the object that is the second param of our `connect` method, `dispatch` will not be available in the props of our component - the action creator becomes available
+
+**Functional Components with `connect`:**
+
+We do not always need only class components to work with `connect`, we can do so with function components too! 
+
+Inside class components, the redux state is available as props, specifically `this.props`. On the other hand, in function components, the redux state is available as props in the param that was passed to the function component, that is, `props`
+
+**Q: Why do we pass action creators to `connect` and then call it within our component instead of importing and directly calling them within our component (bypassing `connect`)?**
+A: The reason we do this is because action creators are just like any other JS function that returns an object. Redux has no way of automatically knowing when an action creator function was called. It also has no way of identifying an action object automatically. For this reason, we wire the action creator up with our connect function which makes a function with the same name available inside our props - but execting this inside our component will automatically & internally run the disptach function that sends the action to the store
+
+**Q: How does component re-render work when using Redux to manage state?**
+A: Anytime we update the data (state) inside our redux store by **dispatching** an action (essentially calling an action creator), it causes all of our components that are hooked up with the `connect` function to *automatically* re-render!
+
+**Q: Drawback of Redux?**
+A: Although it is conceptually great and decreases the level of complexity in large React (or other) apps, it *involves a lot of wiring up to do*. Because of all the *boiler-plate code* that comes with using Redux, some developers hate it
+
+**A good project structure when using Redux with React**
+
+```
+"/" (Root folder)
+	"public/" (All the public/static libraries, images, etc)
+		"index.html" (The main HTML file. Use it to add links to CSS libraries etc)
+		...
+	"src/" (Parent folder for all our source files)
+		"index.js" (SETS UP BOTH THE REACT & REDUX SIDES OF THE APP)
+		"components/" (Place each individual component file inside this folder)
+			"App.js"
+			"Search.js"
+			"Provider.js"
+			"Connect.js"
+			...
+		"api/" (Place all the API related code and config information here)
+			"SomeAPIName.js"
+			...
+		"reducers/" (A place where we store all our reducers [Ex: departments])
+			"index.js"
+		"actions/" (A place where we store all our action creators)
+			"index.js"
+```
+
+**Note on `mapStateToProps`**
+
+1. It receives two arguments, the first being the redux state.
+2. The second argument is a reference to the props object of the component that was sent down to it by the parent
+3. The object that we return is going to become the new props for the component (so we can modify/do some calculations on the props sent down and also the state's properties, and finally send a custom set of props to the component)
+
+```react
+// Ex: A component that matches a prop provided userId from a set of Ids in the state:
+// If a match is found, send that user data as props to component:
+cosnt mapStateToProps = (state, ownProps) => {
+    return {
+        user: state.users.find(user => user.id === ownProps.userId),
+        userId: ownProps.userId
+    };
+};
+```
+
+**A Complete Example of a React App with Redux:**
+
+```react
+/* src/index.js: */
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
+
+import App from './components/App.js';
+import reducers from './reducers'; // '/index.js' is implicitly defined
+
+ReactDOM.render(
+	<Provider store={createStore(reducers)}>
+		<App />
+	</Provider>, 
+	document.querySelector('#root')
+);
+```
+
+```react
+/* src/actions/index.js: */
+// Action Creator: Returns an action
+export const selectSong = song => {
+	return {
+		type: 'SONG_SELECTED',
+		payload: song
+	}
+};
+
+```
+
+```react
+/* src/reducers/index.js */
+import { combineReducers } from 'redux';
+
+const songsReducer = () => {
+	// Returning a static list of songs for the purpose of Demo
+	return [
+		{ title: 'No Scrubs', duration: '4:05' },
+		{ title: 'Macarena', duration: '2:30' },
+		{ title: 'All Star', duration: '3:15' },
+		{ title: 'I Want It That Way', duration: '4:00' }
+	];
+};
+
+const selectedSongReducer = (selectedSong = null, action) => {
+	if(action.type === 'SONG_SELECTED') {
+		return action.payload;
+	}
+
+	return selectedSong;
+};
+
+export default combineReducers({
+	songs: songsReducer,
+	selectedSong: selectedSongReducer
+})
+```
+
+```react
+/* src/components/App.js */
+import React from 'react';
+import SongList from './SongList';
+import SongDetail from './SongDetail';
+
+const App = () => {
+	return (
+		<div className="ui container grid">
+			<div className="ui row">
+				<div className="column eight wide">
+					<SongList />
+				</div>
+				<div className="column eight wide">
+					<SongDetail />
+				</div>
+			</div>
+		</div>
+	);
+	// Child components are not really configured above
+	// That is because Redux is charge of doing that now,
+	// not the parent component!
+}
+
+export default App;
+```
+
+```react
+/* src/components/SongList.js */
+import React, { Component } from 'react';
+import { connect } from 'react-redux'; // Notice 'connect' is lowercase!
+import { selectSong } from '../actions';
+
+class SongList extends Component {
+	renderList() {
+		return this.props.songs.map(song => {
+			return (
+				<div className="item" key={song.title}>
+					<div className="right floated content">
+						<button 
+							className="ui button primary"
+							onClick={() => this.props.selectSong(song)}
+						>
+							SELECT
+						</button>
+					</div>
+					<div className="content">{song.title}</div>
+				</div>
+			);
+		});
+	}
+	render() { 
+		return (
+			<div className="ui divided list">{this.renderList()}</div>
+		);
+	}
+}
+
+const mapStateToProps = (state) => {
+	return {
+		songs: state.songs
+	}; // This object is "props" for our SongList
+}
+
+export default connect(mapStateToProps, { selectSong })(SongList); 
+// Used ES6 syntax to specify selectSong prop with same name as value variable
+```
+
+```react
+/* src/components/SongDetail.js */
+import React from 'react';
+import { connect } from 'react-redux';
+
+// Example of Function component with 'connect':
+const SongDetail = ({ song }) => {
+	if(!song) {
+		return <div>Select a song</div>;
+	}
+
+	return (
+		<div>
+			<h3>Details for:</h3>
+			<p>
+				Title: {song.title}
+				<br />
+				Duration: {song.duration}
+			</p>
+		</div>
+	);
+};
+
+const mapStateToProps = state => {
+	return {
+		song: state.selectedSong
+	}
+};
+
+export default connect(mapStateToProps)(SongDetail);
+```
+
+![Another Example of Redux Flow in React](https://i.ibb.co/fNRvJB7/redux-flow-in-react.jpg)
+
+### 4 Rules of Reducers
+
+1. Must return *any* value besides `undefined`
+2. Produces 'state' (data) to be used inside our app, using only previous state and action. Therefore, reducers are ***pure functions*** (Functional programming concept)
+3. Since reducers are pure: It must not reach 'out of itself' to decide what value to return. That is, value to return cannot depend on values external to the function - they depend only on what is passed to them as params (Example: Do not make API calls or DOM manipulation inside a Reducer)
+4. Must ***not mutate*** its input (previous) 'state' argument (1st param): The reducer must only return a new version of the input state but not mutate the input state itself!
+
+**Rule #4 is misleading**: We can actually mutate the input state. *If you mutate the input state instead of returning something new then we must return a new state which is a copy of the input state*. If we do not do this & return the input state itself then redux thinks that the state has not changed. It does not update the state... but!... since the input state was modified, our state has been implicitly updated, without redux's knowledge. This will cause data problems later on.
+
+**Common patterns for 'safe' state modification:**
+
+1. Removing elements from an array: Use `filter` method
+2. Adding an element to an array: Use spread like this `[...state, <new-elment>]`
+3. Replace every item in the array: Use `map` method
+4. Updating/Adding a propery of an object: Use spread like this `{ ...state, <key>: <value>}`
+5. Removing a property from an object: Use spread and set desired key to undefined. `{ ...state, <key>: undefined }`. Alternatively, you can use a utility library like *underscore* (Ex: `_.omit()`)
+
+**Reducers are run ONCE the first time our app loads**
+
+This is because redux runs the reducers when the store is create (which happens when our app loads). (When a reducer is run for the first time when the app loads, the *action* param will be undefined, so it will return the previous *state* param itself. But, there is NO previous state. This is where default params help)
+
+## Redux-Thunk Middleware
+
+Redux-thunk is a **middleware** for redux. It helps us make requests in a redux application. It is just *14 lines* of code! [Link](https://github.com/reduxjs/redux-thunk)
+
+Installing `redux-thunk`: **`npm i --save redux-thunk`**
+
+**Fetching Async Data from API and Storing it in Redux**
+
+Generally, when we leave the responsibility of fetching data from an API to a *component* in our app. 
+
+With Redux state, the component will fetch data from an API by calling an *action creator*. Therefore, **action creators** are made repsonsible for **making API calls**. 
+
+`redux-thunk` comes into play when an API responds with data inside an action creator function
+
+Some reducer processes the action and updates state. This causes re-render of component with new state (since the action creator was 'dispatched' earlier)
+
+*Timeline*:
+
+- Component renders 
+- `componentDidMount` lifecycle method gets called
+  - Call an action creator function from this method
+  - Action creator makes the API call & API responds with data (`redux-thunk` step)
+  - Action creator returns an action with API data passed to the action *payload*  (`redux-thunk` step)
+- A reducer sees the action, processes the state based on payload
+- New state gets created
+- Component re-renders and we get the new state 
+
+**Q: Why do we need to use `redux-thunk` for asynchronous requests such as API calls?**
+A: The API calls are made inside action creators. But, action creators are supposed to return plain objects - they are not meant to do async calls, wait for a response, and then return an action. `redux-thunk` offers a solution. In fact, the following will throw an error!
+
+```react
+import jsonPlaceholder from '../apis/jsonPlaceholder.js';
+export const fetchPosts = async () => {
+	const response = await jsonPlaceholder.get('/posts');
+	return {
+		type: 'FETCH_POSTS',
+		payload: response
+	}
+} // UNCAUGHT ERROR (X) Actions must be plain objects. Use custom middleware for async actions.
+```
+
+There are **2 errors** in the above code:
+
+- `Actions must be plain objects`: Even though the above code syntax looks like it is returning a plain object, it is not! Async/await are not ES5 or even ES6 constructs (newer that both). So, babel transpiles them down to a lower ES version. In this transpiled version, they are not plain objects. Hence, the error!
+- `Use custom middleware for async actions`: Till now, all our action creators were synchronous, but with API calls, we need to make asynchronous action creators. We need something extra. For this purpose, react suggests using `redux-thunk`, a custom middleware
+
+**Q: What is a middleware in Redux?**
+A: A middleware is:
+
+- A Plain javascript object that is going to be called with every action we dispatch
+- Has the ability to STOP/MODIFY/MANIPULATE actions
+- Tons of open source middlewares exist
+- Most popular use of middleware is for dealing with async actions
+- **Definition**: `redux-thunk` is a middleware used for ***creating asynchronous action creators***
+
+` Action creator => action => dispatch => MIDDLEWARE => reducers => state updated in store`
+
+**Q: How does `redux-thunk` work?**
+A: It allows action creators to return either **objects** or **functions** (can be an *async* function too!). If you return a function, `redux-thunk` will automatically call it for you...
+
+![redux-thunk flow](https://i.ibb.co/Cz1PyxV/Screen-Shot-2018-12-30-at-6-06-45-PM.png)
+
+
+
+**The `redux-thunk` flow:**
+
+1. An action creator is dispatched: Whenever an action creator returns an action,
+2. `redux-thunk` checks whether action is object or a function.
+3. If action is an object, it is dispatched automatically to the *reducers* (like in the normal flow)
+4. If action is a function, it ***invokes*** the function with *`dispatch`* and *`getState`* methods as params
+5. Inside the invoked function, we wait for the API call or some async call to finish, place the data in the action object, and then we have to ***manually dispatch*** the action again
+6. Step (2) takes place again - only that this time action is an object and it is sent to reducers (which update state causing re-rendering of our component if data has changed)
+
+**Q: How do we connect a middleware in `redux`?**
+A: By using the **`applyMiddleware`** method of `redux`
+
+**Q: How do we integrate `thunk` into our project?**
+A: We do the following: 
+
+- Import `applyMiddleware` from `redux`
+- Import `thunk` from `redux-thunk`
+- While creating our store, we pass `applyMiddleware(thunk)` as second argument to our `createStore` function
+
+**A complete React/Redux/Async Calls/Thunk example:**
+
+```react
+// src/index.js:
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+
+import App from './components/App';
+import reducers from './reducers';
+
+const store = createStore(reducers, applyMiddleware(thunk));
+
+ReactDOM.render(
+	<Provider store={store}>
+		<App />
+	</Provider>
+	, 
+	document.querySelector('#root')
+);
+
+```
+
+```react
+// src/actions/index.js:
+import jsonPlaceholder from '../apis/jsonPlaceholder.js';
+
+export const fetchPosts = () => {
+	// Action returns a function: This function 
+	return async (dispatch, getState) => {
+		// Perform async operation
+		const response = await jsonPlaceholder.get('/posts');
+		// Inner function does not return an object 
+		// but manually dispatches an action:
+		dispatch({
+			type: 'FETCH_POSTS',
+			payload: response.data
+		});
+	};
+};
+```
+
+```react
+// src/reducers/index.js:
+import { combineReducers } from 'redux';
+import postsReducer from './postsReducer';
+
+export default combineReducers({
+	posts: postsReducer
+});
+```
+
+```react
+// src/reducers/postReducers.js:
+export default (state = [], action) => {
+	switch(action.type) {
+		case 'FETCH_POSTS': 
+			return action.payload;
+			// "break;" is optional since you are returning earlier
+		default: 
+			return state;
+	}
+}; 
+```
+
+```react
+// src/apis/jsonPlaceholder.js:
+import axios from 'axios';
+
+export default axios.create({
+	baseURL: 'https://jsonplaceholder.typicode.com'
+});
+```
+
+```react
+// src/components/App.js:
+import React from 'react';
+import PostList from './PostList';
+
+const App = () => {
+	return (
+		<div className="ui container">
+			<PostList />
+		</div>
+	);
+}
+
+export default App;
+```
+
+```react
+// src/components/PostList.js
+import React from 'react';
+import { connect } from 'react-redux';
+import { fetchPosts } from '../actions';
+
+class PostList extends React.Component {
+	componentDidMount() {
+		this.props.fetchPosts();
+	}
+
+	renderList() {
+		return this.props.posts.map(post => {
+			return (
+				<div className="item" key={post.id}>
+					<i className="large middle aligned icon user" />
+					<div className="content">
+						<div className="description">
+							<h2>{post.title}</h2>
+							<p>{post.body}</p>
+						</div>
+					</div>
+				</div>
+			);
+		});
+	}
+	render() {
+		return (
+			<div>{this.renderList()}</div>
+		);
+	}
+}
+
+const mapStateToProps = state => {
+	return {
+		posts: state.posts
+	};
+}
+
+export default connect(mapStateToProps, { fetchPosts })(PostList);
+```
+
+## Navigation with React
 
