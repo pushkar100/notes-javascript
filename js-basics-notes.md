@@ -45,3 +45,4 @@ https://www.youtube.com/watch?v=8aGhZQkoFbQ
 New in ES6: Micro Tasks queue
 https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/
 https://www.youtube.com/watch?v=Lum0R6Ng6R8
+https://www.youtube.com/watch?v=cCOL7MC4Pl0
