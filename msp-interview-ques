@@ -1,0 +1,59 @@
+Telephonic Interview Questions to Ask:
+
+1. HTML:
+    1. Local Storage vs Session Storage vs Cookies ? Types of data they can hold? (What is good for auth & What does Stateless HTTP mean?)
+    2. What is a Doctype and why is it required?
+    3. (If Fresher) Ask about a few HTML tags. (ul/ol, h1-h6, img, Iframes?)
+    4. Mention a few additions to html5 (over xhtml). (Probe further)
+    5. What is a CDN? Main use or Why do we need it? Is CDN content cached? Does it get updated? 
+    6. Where would you place a stylesheet link within an HTML Document? Types of stylesheets & precedence?
+    7. Where would you place a script tag within an HTML Document and why?
+        1. If good, Additional Question: Defer vs Async Scripts (Only to test depth of knowledge)
+    8. Pseudo elements? (::) List a few of them. (`first-letter`, `first-line`, `after`, `before`, `placeholder`, `selection`, etc) ( they allow you to style certain parts of an element and more like create virtual elements which pseudo classes cannot do - pseudo classes can be applied to pseudo elements but not vice-versa(sic). )
+    9. What is the <noscript> tag used for?
+2. CSS:
+    1. What is CSS Box Model? Ask about Content>Padding>Border>Margin
+        1. How do we calculate the total width of an element?
+        2. How do we calculate the total height of an element?
+            1. If good, Additional Question: What is a CSS outline? (Only to test depth of knowledge)
+            2. Or, Ask: What is box-sizing? content-box vs border-box vs padding-box (Only to test depth of knowledge)
+    2. CSS Font sizes? `px` versus `em` versus `pt` versus `%`. (Where is what used?)
+    3. Display: inline? Margin and padding to inline elements? (Height, Width, Top & bottom P&M DON’T work for inline elements)
+    4. Display: inline-block? (Can set height & width)
+    5. Display: block? It does not just sit on a line like the rest (Starts on a new line and takes up as much horizontal space as the parent allows by default)
+    6. CSS Positioning? (static vs relative vs fixed vs absolute) What is a positioned element (A: everything except static)? Positioned element + absolute combo?
+        1. If good: What is z-index? (Applies to positioned elements only) (A child of lower z-index parent can never appear on top of another non-child postioned elt with higher z-index than parent)
+    7. What is floating of elements? (Values?) Difference between floated elements and Display inline-block? What is clear? What is Clearfix?
+    8. What is CSS Reset? (every browser has its own default ‘user agent’ stylesheet, Using a CSS Reset, CSS authors can force every browser to have all its styles reset to null, thus avoiding cross-browser differences as much as possible.) Difference btw Reset and Normalize?
+    9. CSS Sprites? (combining multiple images into a single image file for use on a website, to help with performance, single http req.)
+    10. CSS media queries? Responsive design? (Retina display?) (`@media` attribute)
+    11. How do we override an inline style from an external style rule? (`!important`)
+    12. CSS Selectors: Classes(.) versus ID(#)?
+    13. CSS Specificity (When there is conflict in style to be applied, how is it resolved?). What is the precedence of selectors?
+    14. What are pseudo classes? (:) Are they added to the DOM? (Answer: NO - They are outside of the DOM tree) (Apply a style to an element not only in relation to the content of the document tree, but also factors like the history of the navigator, status of its content , position of the mouse) (`active`, `visited`, `hover`, `checked`, `first-child`, `nth-child`, `first`, `not`, etc)
+        1. Additional Question if good with CSS: Have they worked with SASS or LESS (CSS Preprocessors)? Advantages of using either of the two? (Only to test depth of knowledge)
+3. JS:
+    1. What is the difference between `==` and `===`?
+    2. What is the ‘use strict’ method?
+    3. Data types ? (Boolean. Null. Undefined. Number. String. Symbol (new in ECMAScript 6))
+    4. What are false values? (false, 0 (zero), “” (empty string), null, undefined, NaN
+    5. Undefined (declared not defined, type: undefined) vs NaN (special value, type: number) vs null (declared but with no value, type object)? (https://stackoverflow.com/questions/5076944/what-is-the-difference-between-null-and-undefined-in-javascript)
+        1. null === undefined // false
+        2. null == undefined // true
+        3. null === null // true
+        4. null = 'value' // ReferenceError
+        5. undefined = 'value' // 'value'
+        6. NaN == undefined // false
+        7. NaN == null // false
+        8. NaN == NaN // false
+        9. NaN != NaN // true
+    6. Difference between window.onload (all page content loaded - ex: images) versus document.ready() (built dom tree) ?
+    7. JS Hoisting. What is it? Variable hoisting vs function hoisting?
+    8. HTTP methods ? GET vs POST?
+    9. JSON vs JSONP? (json with padding) (For cross domain data retrieval, APIs data transfer)
+    10. Closures. What are they? (A closure is an inner function that has access to the outer (enclosing) function’s variables—scope chain. The closure has three scope chains: it has access to its own scope (variables defined between its curly brackets), it has access to the outer function’s variables, and it has access to the global variables.) (The inner function has access not only to the outer function’s variables, but also to the outer function’s parameters. )
+    11. ES6? Some differences with current JS? (If good at JS)
+    12. Event Capturing vs event bubbling? (How do we stop propagation, how do we stop default action?)
+    13. Have you worked on any SPA? Issues related to SPAs (SEO : not indexing JS loaded pages)? (https://en.wikipedia.org/wiki/Single-page_application)
+    14. What is Ajax? How would you use it?
+    15. Data attributes in jQuery explain?
