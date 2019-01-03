@@ -174,7 +174,7 @@ Important point regarding closures:
 - **Closure will be maintained even if the inner function is not executed immediately.**
 - This means that we can pass `inner` function around or `return` it from `someFunc` for later execution and the closure will still be maintained (whenever `inner` is executed)!
 
-## Garbage Collecion:
+## Garbage Collection:
 - Memory is managed *automatically* by the **JS Runtime**
 - This memory management process is known as **Garbage collection**
 - Programmers have **no** say in how and when must certain memory be released/sent to garbage.
