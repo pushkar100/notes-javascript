@@ -154,10 +154,10 @@ foo();
 ```javascript
 var x = 0;
 function foo() {
-    console.log(x);
+    console.log(x); // ReferenceError: x is not defined
     let x = 1; // Declaration is hoisted within 'foo'
     // (Note: 'let' will still "shadow" outer variable with same name)
-    console.log(x);
+    console.log(x); // 1
 }
 foo();
 ```
