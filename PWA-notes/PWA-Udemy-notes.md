@@ -1,4 +1,4 @@
-# PWAs Tutorial
+# PWAs Tutorial (Includes PRPL Pattern)
 
 [Source: Udemy](https://www.udemy.com/progressive-web-apps/)
 
@@ -15,7 +15,7 @@ PWAs make it easy to convert existing websites by adding functionality to them i
 1. We add a couple of *layers* like **Service workers**: Standalone script that runs independently of the rest of the website. It is like a client-side proxy (in-between/in-the-middle) object.
    1. *Cache content*: Service workers cache content and for that it uses the new `caches` API (client-side storage for any resource on the page)
 2. **Responsive**: That it needs to support mobile devices (ex: mobile-first design). The design needs to match the native apps
-3. **Optimised for Performance**: Run smoothly on any device - again, much like a native app experience
+3.   for Performance**: Run smoothly on any device - again, much like a native app experience
 4. **Best Offline Experience**: Work offline, at least to some degree (or failing gracefully)
 
 Even if these layers and APIs are not detected, the website continues to function normally. Therefore, it is truly "progressive" enhancement
@@ -1379,21 +1379,22 @@ Questions to be asked in order to form a strategy:
 2. Is it acceptable to display this content in its most recent version as opposed to the live version? Something like a comments feed can be shown with the most recent version, and when the network is available, we can load the live version
 3. What is more important? *Performance* or *Age*?: Loading from cache provides a significant performance benefit (over fetching from a network). Is this performance benefit more useful that loading live data (most up to date data)?
 
-There are about 5 common strategies: 
+There are about 6-7 common strategies: 
 
 1. ***Cache only***: Serve data only from the cache (good for static assets like the *App shell* - HTML, CSS, etc that make up the application itself and NOT its content)
-2. ***Cache with Network Fallback***: Same as *cache only* (1) but if match fails, it goes to network to fetch a fresh response
-3. ***Network with Cache Fallback***: Good for data that still holds value in its older version but should ideally be up to date. (Ex: comments' feed). We always fetch & update the cache (ensuring cache has latest version). If network is down (`.catch()` method of `fetch`), serve from cache
+2. ***Network only***: This involves no caching since we are always fetching data from the network and displaying that
+3. ***Network First (with Cache Fallback)***: Good for data that still holds value in its older version but should ideally be up to date. (Ex: comments' feed). We always fetch & update the cache (ensuring cache has latest version). If network is down (`.catch()` method of `fetch`), serve from cache
    - *Drawback*: In poor network conditions, the `fetch` is dispatched but it takes ages for the response to come back - and fetch hasn't failed but is only delayed - so data is not served from cache either. User is forced to wait a long time, leading to a poor experience
-4. ***Cache with Network Update***: We serve the resources *immediately* from the *cache* and then updates the cache in the background so that on the *next reload*, the cache content is as up-to-date as possible. This is not good enough for live data but if such a compromise is acceptable, then it can be implemented since cache will be having *almost* up-to-date data
+4. ***Cache First (with Network Fallback)***: Same as *cache only* (1) but if match fails, it goes to network to fetch a fresh response
+5. ***Cache First (with Network Update)***: We serve the resources *immediately* from the *cache* and then updates the cache in the background so that on the *next reload*, the cache content is as up-to-date as possible. This is not good enough for live data but if such a compromise is acceptable, then it can be implemented since cache will be having *almost* up-to-date data
    - This is like getting the live data on *second reload*!
-5. ***Cache & Network Race***: Most advanced strategy. We have to dispatch a fetch and the cache request at the same time, and use the one which responds with data first (the quickest). On some devices, the disk access might be slower than network requests, and cache could take more time than network requests (unlikely, but possible)
+6. ***Fastest (Cache & Network Race)***: Most advanced strategy. We have to dispatch a fetch and the cache request at the same time, and use the one which responds with data first (the quickest). On some devices, the disk access might be slower than network requests, and cache could take more time than network requests (unlikely, but possible)
    - We cannot simply use `promise.race()` because even a `404` error page will get resolved first, and if cache resolves first, it is returned no matter what - not reliable!
    - We have to write a custom function that returns a promise - we respond with this promise
    - Inside the promise, we try the asynchronous `fetch` and the asynchronous `caches.open` methods, resolving as soon as whichever has got the correct response
    - Both of these requests (fetch and cache) could be rejected, but if one rejects, we want to still wait for the other. So, we only return a rejected response if both fail, otherwise, we wait for the other to, hopefully, resolve. (We can write a function to track the rejection count using a flag variable)
    - Therefore, first reject means wait for the other one to finish. Second reject means resource not found, send rejected response
-6. ***Providing placeholder content***: This is *not* a separate strategy, it works with all the other 5 strategies. We can provide fallbacks for resources that are not in cache and we are offline! Check code below (6).
+7. ***Providing placeholder content***: This is *not* a separate strategy, it works with all the other 5 strategies. We can provide fallbacks for resources that are not in cache and we are offline! Check code below (6).
    - Example: Placeholder image for failed image request (failed in cache + fetch)
    - Example: Placeholder text for some text resource (failed in cache + fetch)
 
@@ -1617,5 +1618,211 @@ PWAs that work on android work on iOS as well but there are two limitations:
 
 The generated links in step 2 can be copied over to your app's `<head>`. This will add the necessary definitions to include your icons for the app on iOS (apple phones)
 
-Splash screen and icons for PWA on iOS: [Follow through thid 5 minute video](https://www.udemy.com/progressive-web-apps/learn/v4/t/lecture/7241306?start=0)
+Splash screen and icons for PWA on iOS: [Follow through this 5 minute video](https://www.udemy.com/progressive-web-apps/learn/v4/t/lecture/7241306?start=0)
 
+## Bonus Content: How Flipkart Built Their PWA (2016)
+
+[SOURCE: REACT FLIPKART YOUTUBE](https://www.youtube.com/watch?v=m2tvYGCdOzs)
+
+- **App Shell**: This is the very basic scaffolding (layout HTML) of the app that we want visible immediately to the user. It represents the ***loading state***! When other views (outside app shell) load, we get the complete loaded state. The app shell is responsible for loading the other views after it gets loaded
+- In *React*, you can maintain a flag to indicate loading vs loaded state - ***Declarative*** way. And, we'd display our views accordingly. Therefore, initially the flag suggests loading and only the app shell (loading state) is visible
+- If you are doing SSR then `renderToString` in React is very ***CPU intensive*** (expensive operation). Therefore, we should try to serve our App Shell in a static way (combine all static content during the build process)
+- To make our app shell render quickly, we ***embed critical CSS*** (for above-the-fold content) into the app shell. This renders the CSS for the shell quickly, without having to request an external CSS script
+- You may treat only the essential or critical (live) data as network requests. Everything else can be thought of as non-essential and be served from cache. Therefore, we go with the ***offline first strategy*** where you serve from cache first.
+- Implementing a cache strategy will automatically improve network and therefore, render performance!
+
+**App Shell Architecture** versus **Conventional Server-Side Rendering (SSR)**:
+
+1. *Improves Time to First Paint?*: Both techniques improve it
+2. *Is it possible to render during build time?*: This is not possible in Conventional SSR because the rendering is dynamic w.r.t routes (route-based) and hence, the HTML is finalised only when the route is hit! We cannot produce static content during build. However, this is *possible in app shell architecture* since we move all static content to one side during build process. If we have different routes that vary greatly in the shell, we can have an app shell each for those varying routes
+3. *Client Side Caching*?: Does not work with the conventional SSR. It works with App Shells because we can have a Service Worker intercept requests (it is a proxy) and supply cached data as response from a storage on the client side
+4. *Reuse across URLs?*: Cannot by done in conventional SSR. In app shells, the shell can be reused across millions of URLs of the same type. Ex: One app shell for all product pages - since they have the same basic layout
+5. *SEO?*: It is easier to do this with conventional SSR. But, it is not impossible to do it in app shell architecture - can be done
+
+**Quick Win**:
+
+Most modern browsers support ***rasterization*** (converting vectors (images) to bitmaps for the final paint) on the GPU on most mobile devices. *This improves rendering performance*! All you have to do to enable this is add the viewport meta tag with the following options:
+
+```html
+<meta name="viewport" content="width=device-width, minimum-scale=1.0">
+```
+
+## The PRPL Pattern
+
+[Source: Hackolabs YT](https://www.youtube.com/watch?v=pN9ABRkfwdI)
+
+PRPL is a pattern that helps you ***load pages faster*** & ***load more reliably***. PRPL is not one specific thing but a ***set of different techniques*** that you can apply to your webpage!
+
+The concept:
+
+1. **(P)USH** the most *critical resources*.
+2. **(R)ENDER** the *initial route* as soon as possible (Pushed critical resources in Step 1 help with rendering ASAP)
+3. **(P)RE-CACHE** all of your *remaining resources*
+4. **(L)AZY LOAD** all of your *remaining routes*
+
+**Q: Why PRPL?**
+A: Over the years, *mobile traffic has outgrown desktop traffic*, and *unique visits on browser is greater than unique downloads in the playstore*. Therefore, it is easier for a new web app to reach out a new user and engage him (either on site or with a home screen app (pwa)) than it is to get someone to download a new app. Therefore, we need to make use of these stats by optimizing our web apps using an optimization pattern like PRPL!
+
+### Network Latency
+
+**Q: How traditional requests work & what are the negative effects?**
+A: Traditional requests work like this:
+
+1. Request the page from server = 1 round trip time (Request + Response circle)
+2. Parse the HTML 
+3. Request every resource that appears while parsing HTML & while executing CSS & JS (styles/scripts/etc) = 1 round trip time for each
+
+We want to *reduce these round trip times* as they increase the network latency (delay, bad!)
+
+**Solution(s)**
+
+1. **`<link rel="preload" src="[resource-path]" as="[script/style/image/font/video/..]">`** in the `<head>` of your document 
+2. Use **`HTTP/2` Server Push**
+
+**(A) `preload/prefetch`**
+
+Preload lets us tell the browser which resources we need immediately after the page loads ('Hey, this resource is really important, so please download it as soon as you can')
+
+**Q: What resources must be fetched by preloading?**
+A: We can fetch resources like stylesheets and the main javascript file but doing so does not provide such a big benefit - because they are already going to be fetched on load. The real benefit occurs when you preload resources such as fonts, media, scripts, etc that are embedded in say, CSS or JS (that was downloaded on page load). When these are requested by an executing script or through CSS parsing, they are immediately available!
+
+**Q: What is `rel="prefetch"` then?**
+A: It is similar to `rel=preload` but it wants to load resources before hand for *another route*! For example, if you are on the home page and you have a resource on the product page, from home page you can prefetch a resource required by the product page. So, what is the difference? The browser knows that `prefetch` labelled resources are low priority compared to the current route's resources - so it will fetch them later (after downloading current page's resources). `preload`, on the contrary, takes the highest priority!
+
+Webpack tool to make it easy to add `preload` and `prefetch`: **`preload-webpack-plugin`**. This plugin helps create preload/prefetch tags for *particular chunks* that get created for your major bundles
+
+**Browser support for `preload` and `prefetch`**
+
+Chrome, Safari, and Opera support them. Firefox has partial support. Edge still does not support it
+
+**(B) `HTTP/2` Server Push**
+
+Apart from using preload and prefetch, we can *send (additional) critical resources directly to the client* from the server before the client even requests for it.
+
+For example, we can send all the critical CSS and scripts to the browser when it asks for the HTML of the route. This has to be configured on the server and is only possible if protocol used in HTTP/2 (ex: Firebase hosting)
+
+```
+Link: </app/style.css>; rel=preload; as=style
+Link: </app/script.js>; rel=preload; as=script
+```
+
+The format is similar to the `<link>` format in the HTML.
+
+Using `preload` in the head and *no* push from server (disable push for a resource):
+
+```
+Link: </app/style.css>; rel=preload; as=style; nopush
+```
+
+```html
+<link rel="preload" src="/app/style.css" as="style">
+```
+
+**The problem of pushing too much!**
+
+When the server pushes something, it is an automated internal request. If we push too many or all our resources then pushing might result in increase of page load time as opposed to reducing it!
+
+1. Push ***only critical resources*** (decreases page load time)
+2. Do not push unused assets (bandwith gets wasted)
+
+**Drawback of HTTP/2 Server Push**
+
+The server is *not aware* of the browser cache. So, even if we have a resource that is cached, the server will still push the same resource. It increases the data costs. Solution? Combine it with service workers
+
+### Service Workers
+
+The service worker is a script that runs in the background of your browser when you view a webpage.
+
+*Options*:
+
+1. Write a service worker 
+2. Use a service worker library [Google's WorkBox](https://developers.google.com/web/tools/workbox/)
+
+```
+npm i -g workbox-cli
+
+workbox-cli generate:sw 
+```
+
+**Q: What can we use a service worker for?**
+A: It can be used for the following things:
+
+1. App Shell: The shell of the user interface that does not contain any real content. We can cache the shell & its corresponding content
+2. Dynamic Content Caching: This can be caching of data. That is, ***runtime caching***!
+
+Therefore, Service Workers are good for **App Shell + Dynamic Content Caching**. This combination allows us to provide:
+
+- *Offline support*, and
+- *Faster Repeat Visits* (not just shell, even content is being cached)
+
+### Bundles & Code-Splitting
+
+Bundle sizes are getting bigger and bigger! There is a need to trim down or separate out code into smaller bundles. This is done through ***code-splitting***
+
+For example, if you are on the login page of an app, do you require the entire JS bundle that includes the entire website's functionality? 
+
+Philosophy: *When you are on a route, get the JS for the route only when you are there* (& not viewing some other route)!
+
+To check sizes of different parts of code, you can use `webpack bundle analyzer` tool!
+
+**Lazy Loading the remaining routes**
+
+With code splitting, we are not bundling the code required for a route until it is hit upon. Therefore, we are lazy loading the remaining routes - if user never visits these routes, they are never going to needed, so we will never need to use them!
+
+### Summary
+
+**METRICS**
+
+1. Time to first meaningful paint (TTFP / TTFMP)
+2. Time to interactive (TTI)
+
+# PRPL (Performance of PWAs)
+
+[Source: Planning for Performance (PRPL) - Chrome Dev Summit](https://www.youtube.com/watch?v=RWLzUnESylc)
+
+**Improving Network Latency**
+
+- **`link rel="preload" href="<path-to-resource>"`**
+  - When you mention something as a preload resource, that resource is downloaded by the browser in the background even though you do not request the resource! The next time this resource is requested, browser says, "I've got it!". 
+  - So, we can preload certain things that we think that the app is going to request soon by placing paths to these resources in the preload link tags
+  - Preloading must work *well* in ***HTTP2*** (Get this confirmed!). The reasoning is the multplexing of resources - you download them in parallel without a waterfall model (but intertwined) and if a script depends on another script, we use the one that was preloaded
+  - Preloading is extremely useful for "*late discovery documents*". These are *fonts*, *lazy-loaded scripts* that are created by build tools as a result of code splitting and *module splitting*.
+- **HTTP2 (H2) Server Push**
+  - When we request a page, usually that page is fetched and during parsing, all the critical resources that are needed are fetched again and loaded. We can reduce this time taken for fetching
+  - Preloading solved a part of the problem - but it reduces the time only for resources that will be required later (lazy loaded). What about critical resources required on load - i.e when you want to paint for the first time?
+  - HTTP2 has something known as server push (***New***) - it automatically sends certain additional resources (configured on server side - like your styles & scripts) whenever you request the page itself. So, you don't have to make additional requests for critical resources again. The initial page load time decreases (yay!)
+    - Drawbacks of server push: It is ***not cache aware*** and there is ***no resource prioritization***! If the browser has a cache of the same resource that the H2 server intends to push then the server still pushes that resource because it is unaware of what is in the cache - and the browser *has* to accept it, no other go. Also, resources that are pushed are done randomly, not in a prioritized manner. Because of these two drawbacks, data costs can shoot up tremendously!
+    - Solution: H2 Server Push  + SW
+
+- **HTTP2 Server Push + Service Worker = Best Combo**
+  - Since service workers act like a proxy to the client, we can intercept all resource requests made to the server. Once we have all the resources on first load, we can serve from the cache on second load without even making a request to the server so that it does not push all other resources as well
+  - *First load*: Request fetches the page and all other resources that are critical (probably push by the H2 server). Service worker script is one of the resources downloaded and it has not been registered just yet!
+  - *Second load*: Service worker has been registered, it intercepts requests and serves data from cache without even hitting the server. Even the critical resources that H2 automatically pushed are served from the cache - and the server does not get to push them again because we don't even send the request to it
+
+**Network Summary**
+
+1. **Preload** is good for moving the start download time of an asset closer to the initial request
+2. **H2 Server Push** is good for cutting out one full round trip time for (critical) resources requested by the page (during parsing). It gets better data cost wise & request service time wise when coupled with a service worker!
+
+Network latency optimisation improves **Time to First Paint**
+
+**Improving Time to Interactive**
+
+- Once the TTFP is resolved, the remainder of your problem of getting the user interactive with page deals with Javascript. ***Parsing & executing Javascript*** is going to ***block your render*** and hence, make your page less (non) interactive during that time!
+- The size of javascript that is being shipped is increasing every day! (Started from KBs, now some apps are shipping MBs of JS). If you add frameworks + store management + code from tooling (webpack), the size increases heavily
+  - How do we *reduce* the parse time? Ans: ***Reducing the size of code that is being parsed***. Ex: What if we have JS that displays a graph but the graph is not visible on load, instead it appears on scrolling. 
+  - We can ship certain JS that is downloaded but *not parsed*! There are *two* manual methods to do this:
+    - **`<script type="inert" src="...">`**: If the `type` of the script specified is an *invalid* type (like "inert") then the script id downloaded but not parsed & executed!
+    - **`<script id="..."> /* ( .. code .. ) */ </script>`**: Ship code that is commented out. Again, this is downloaded but not parsed/executed after downloading
+    - The above two methods help you avoid that parse cost: You can manually decide when to parse that piece of code. The control lies over the developer. So, we can ship code on page load but parse it later, improving the render time (time to interactive)
+  - Automatic ways to split code and parse later (frameworks & tools):
+    - [Angular lazy module loading](https://angular.io/guide/ngmodules#!#lazy-load)
+    - [Webpack aggressive splitting plugin - `require.ensure()`](https://github.com/webpack/webpack/tree/master/examples/http2-aggressive-splitting)
+
+**Summary of Time to Interactive**
+
+Ship the ***smallest amount of Javascript*** as possible 
+
+**Summary of everything**
+
+Test on ***real devices*** on ***mobile networks***
