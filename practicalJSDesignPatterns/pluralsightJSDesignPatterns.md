@@ -957,6 +957,8 @@ Behavioral design patterns:
 
 ### Observer (Publisher-Subscriber) Pattern
 
+**Note**: [PubSub != Observer](https://hackernoon.com/observer-vs-pub-sub-pattern-50d3b27f838c)
+
 It allows a collection of objects to watch an object and be notified of changes.
 
 - Allows for loosely coupled system
