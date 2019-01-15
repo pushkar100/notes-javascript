@@ -101,6 +101,8 @@ console.log( singleA.getRandomNumber() === singleB.getRandomNumber() ); // true
 
 In the **observer** pattern, if an object is *modified* then it *broadcasts to dependent objects* that a *change* has occurred.
 
+**Note**: [PubSub != Observer](https://hackernoon.com/observer-vs-pub-sub-pattern-50d3b27f838c)
+
 *Examples:*
 1. The Model-View-Controller (**MVC**) architecture where changes in view modify the model also.
 2. **Event listeners**. Once an event is triggered, the listeners are notified (Ex: `addEventListener` in JS).
