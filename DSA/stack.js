@@ -11,7 +11,10 @@
 5. isEmpty(): Returns true if stack is empty [O(1)] (Use array.length in JS [or] every addition/deletion update length)
 */
 
-/* Implementation: */
+/* Implementation: 
+1. Can use an Array, or
+2. Can use a linked list
+*/
 var Stack = function() {
 	this.storage = [];
 }
