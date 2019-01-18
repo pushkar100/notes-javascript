@@ -13,7 +13,7 @@
 
 /* Implementation: 
 1. Can use an Array, or
-2. Can use a linked list
+2. Can use a linked list (not shown here)
 */
 var Stack = function() {
 	this.storage = [];
