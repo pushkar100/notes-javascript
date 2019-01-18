@@ -17,8 +17,11 @@ Stack.prototype.push = function (val) { // O(1)
     }
 }
 Stack.prototype.pop = function () { // O(1)
+    var val;
     if(this.count >= 0) {
+        val = this.storage[this.count];
         delete this.storage[this.count--];
+        return val;
     } else {
         return "Stack Underflow";
     }
