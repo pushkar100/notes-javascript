@@ -70,7 +70,7 @@ There are newspaper publishers (Ex: Times of India) and there are subscribers (E
 1. Deliver data
 2. Can either deliver data or have it taken from them
 
-![Observe & PubSub Pattern](https://learning.oreilly.com/library/view/learning-javascript-design/9781449334840/httpatomoreillycomsourceoreillyimages1547801.png)
+![Observe & PubSub Pattern](https://learning.oreilly.com/library/view/learning-javascript-design/9781449334840/httpatomoreillycomsourceoreillyimages1547803.png)
 
 ## Ways to implement it
 
