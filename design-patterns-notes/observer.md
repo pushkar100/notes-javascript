@@ -70,6 +70,8 @@ There are newspaper publishers (Ex: Times of India) and there are subscribers (E
 1. Deliver data
 2. Can either deliver data or have it taken from them
 
+![Observe & PubSub Pattern](https://learning.oreilly.com/library/view/learning-javascript-design/9781449334840/httpatomoreillycomsourceoreillyimages1547801.png)
+
 ## Ways to implement it
 
 Note that only publisher can deliver, and only subscriber can consume. Apart from that, there are two ways in which it can be implemented:
