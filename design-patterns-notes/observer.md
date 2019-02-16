@@ -12,6 +12,10 @@
 
 Observer is a common pattern in an *event-driven environment* where things constantly seek attention from the user (such as in a browser)
 
+### Type of pattern
+
+**Behavioral pattern**. It focus on improving or streamlining the communication between disparate (different/differing/contrasting) objects in a system.
+
 ## What is the pattern? 
 
 A pattern that allows you *observe* the **state** of an object in a program and be *notified* when it changes
