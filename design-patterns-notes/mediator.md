@@ -157,7 +157,7 @@ MyWorkflow.prototype.doStuff = function(){
 
 ## Real World Examples
 
-1. When you define all your eventh handlers on `document` instead of the target element, the document becomes the mediator
+1. When you define all your event handlers on `document` instead of the target element, the document becomes the mediator
 
 ## When do we use the pattern?
 
