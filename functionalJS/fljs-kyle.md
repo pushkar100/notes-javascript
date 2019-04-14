@@ -1,3 +1,24 @@
+### Imperative Programming
+
+HOW to do it? (Ex: binary code, assembly lang). Move this here, save variable here, delete this, etc.
+
+### Declarative Programming
+
+WHAT should happen? (Ex: Angular, React). Ex: I want this data I have to be displayed.
+(More abstraction compared to imperative)
+
+Less abstraction: mostly imperative
+More abstraction: mostly declarative
+We don't have completely declarative code.
+
+### Why FP?
+
+- We are reusing patterns that have been tested for many years (~100) and even longer mathematical history (provable)
+- The math concepts help prove that the unit test written for it IS going to pass before we even test it
+- Reader of the code need not know how the different functions in fp work (coz it's tested for years)
+- Less to read (we already have functions to do stuff - you can trust your fp tools)
+- Therefore, code is more readable!
+
 ### Procedure
 
 A collection of instructions
