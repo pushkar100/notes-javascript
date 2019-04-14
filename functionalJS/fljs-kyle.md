@@ -1,3 +1,7 @@
+# Functional Lite JS v2
+
+## Kyle Simpson
+
 ### Imperative Programming
 
 HOW to do it? (Ex: binary code, assembly lang). Move this here, save variable here, delete this, etc.
