@@ -429,4 +429,81 @@ foo(bar(baz(2))) can be composed as pipe(baz, bar, foo)(2)
 
 Compose and pipe both do the same things but in different ways. There is no right or wrong approach, choose one as you deem fit (Sometimes one makes more sense over the other)
 
+#### Why use compose & pipe?
+
+If we created another function that takes in all the inputs to compute them one by one and return the result, we'd be passing too many input parameters and the order of execution is clear only from the name of the function. In compose, 
+1. We are using less parameters, and 
+2. Watching the data flow through functions
+
+Example: Without compose
+``` 
+function sum(x, y) {
+	return x + y
+}
+
+function multBy10(a) {
+	return a * 10
+}
+
+function sumMultAndMultBy10(x, y) {
+	return multBy10(sum(x, y))
+}
+
+sumAndMultBy10(1, 5) // 60
+```
+
+Example: With compose
+```
+function sum(x, y) {
+	return x + y
+}
+
+function divideBy(a, z) {
+	return a / z
+}
+
+function compose(f1, f2) {
+	return function(...args) {
+		return f1(f2(...args))
+	}
+}
+
+var sumAndMultBy10 = compose(multBy10, sum)
+sumAndMultBy10(1, 5) // 60
+```
+
+Compose & pipe are more *point-free style* of doing things.
+
+Complete compose & pipe example:
+```
+function increment(x) { return x + 1; }
+function decrement(x) { return x - 1; }
+function double(x) { return x * 2; }
+function half(x) { return x / 2; }
+
+function compose(...methods) { // R to L
+	return function(...result) {
+		for(var i = 0; i < methods.length; i++) {
+			result = methods[i](...result)
+		}
+		return result
+	}
+}
+
+function pipe(...methods) { // L to R
+	return compose(...methods.reverse())
+}
+
+var f = compose(decrement,double,increment,half);
+var p = pipe(half,increment,double,decrement);
+
+f(3) === 4;
+// true
+
+f(3) === p(3);
+// true
+```
+
+With a list operation, a function composition is basically a *reduce*
+
 ---
