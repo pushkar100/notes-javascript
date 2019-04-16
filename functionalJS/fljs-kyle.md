@@ -506,4 +506,118 @@ f(3) === p(3);
 
 With a list operation, a function composition is basically a *reduce*
 
+### Mutability
+
+There are two types of mutability
+
+1. **Assignment mutability**: This is achieved by using `const`
+2. **Value mutability**: Whenever we change an array index or object property, we are mutating it. The changes reflect in the original array if it was passed down to us before the change occurred
+
+**Assignment vs Value immutability**
+
+Assignment mutability is not very helpful. It tells you that a variable cannot be reassigned but it does not tell you that it's values can be mutated
+
+```
+const a = 5
+const x = [1, 2, 4]
+
+a = 6 // error!
+x = [1, 2] // error!
+x[1] = 10 // allowed!! (Hence, const does not guarantee value immutability)
+```
+
+Value immutability is ***more important*** because:
+
+1. The values can be ported to other parts of code where they can be mutated (& changes appear in the original array)
+2. When we write code, we must be able to **trust it**. If we want something to be immutable, we must define it as such, and if we are dealing with 3rd party objects that are passed down, we must not mutate them (copy and return instead)
+
+**Ways to make immutable objects**
+
+1. Use an immutable library (ex: ImmutableJS) to define lists or objects and their operations
+
+   ```javascript
+   var state = immutable.list.define(1, 9, 10)
+   newState = state.set(19, 'a') // can't mutate, returns new state & we save it
+   newState // 1, 9, 10, 19, 'a'
+   state // 1, 9, 10
+   
+   // These libraries usually store only the difference between states, so that we don't always create a copy of the entire state, wasting space
+   ```
+
+2. Use something in-built in the language for simple purposes (if you think a library is too heavy)
+
+   ```javascript
+   // 1. Using Object.freeze(<array-or-object>):
+   var x = Object.freeze([10, 20, [0, 5]])
+   x[1] = 30 // ERROR!
+   x[2][0] = 4 // Allowed, since freeze() is a shallow freeze
+   
+   // 2. Using .map() or other built-in while passing :
+   var list = [9, 1, 5, 22, 8, 10, 12]
+   sortTheList(list.map(n => n))
+   ```
+
+**Modifying an object or an array that we have received**
+
+```javascript
+var myList = [1, 2, 4]
+
+// Don't do this:
+function doubleIt(list) {
+    for(let i = 0; i < list; i++) {
+        list[i] = list[i] * 2
+    }
+}
+doubleIt(myList)
+
+// Do this:
+function doubleIt(list) {
+    var newList = []
+    for(let i = 0; i < list; i++) {
+        newList[i] = list[i] * 2
+    }
+    return newList
+}
+myList = doubleIt(myList)
+```
+
+**Complete example**
+
+```javascript
+// # Instructions
+
+// 1. Define `pickNumbers(..)` so that it's a pure function (other than the randomness!) which generates a new random lottery number (using `lotteryNum()`) and adds it to the list.
+
+// 2. `pickNumbers(..)` should always keep the list of lottery numbers sorted in ascending order. Also, no duplicates!
+
+function lotteryNum() {
+	return (Math.round(Math.random() * 100) % 58) + 1
+}
+
+function pickNumbers(list) {
+	var nums = list.slice() // make sure you copy orig array and not mutate it
+	var num
+	do {
+		num = lotteryNum()
+	} while(nums.indexOf(num) !== -1)
+	nums.push(num)
+	nums.sort(function (a,b) {
+		return a - b
+	})
+	return nums
+}
+
+var luckyLotteryNumbers = [];
+
+for (var i = 0; i < 6; i++) {
+	luckyLotteryNumbers = pickNumbers(
+        Object.freeze(luckyLotteryNumbers)
+        // OR
+        // luckyLotteryNumbers.map(n => n)
+    ) // passing something immutable
+}
+
+console.log(luckyLotteryNumbers)
+```
+
 ---
