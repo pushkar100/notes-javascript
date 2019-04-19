@@ -620,4 +620,66 @@ for (var i = 0; i < 6; i++) {
 console.log(luckyLotteryNumbers)
 ```
 
+### Closure
+
+Closure is the concept where a function that is taken out of it's lexical scope and executed elsewhere, will still remember the variables from the earlier scope.
+
+Ex: Event handler functions, AJAX callbacks (any async callback), etc.
+
+Closure becomes possible when:
+1. Functions can be passed around (as first-class objects)
+2. Functions follow lexical scoping
+
+By nature, functions use variables outside it thanks to closure. Does this violate functional programming concepts? Not really. It depends on the situation i.e If we have a high degree of confidence that the variable in closure cannopt change by the time the function gets executed, it is perfectly okay to use closure in functional programming.
+
+Example:
+```javascript
+function unary(fn) {
+    return function execUnary(arg) {
+        return fn(arg)
+    }
+}
+
+// We have a high level of confidence that `fn` is not going to change between lines 1 & 3.
+// Therefore, `unary` and `execUnary` are pure
+```
+
+**Referential Transparency**
+
+A function must be observationally transparent. That is, if we replace the function with its return value and it does not affect the state of pthe program, it is referentially transparent.
+
+```javascript
+function foo() {
+    let id = 0
+    return function() {
+        return id
+    }
+}
+
+var x = foo()
+x() // 0
+x() // 0
+x() // 0
+
+// We can replace the functon with its value and the state is consistent
+// Not referentially transparent
+```
+
+```javascript
+function foo() {
+    let id = 0
+    return function() {
+        return id++
+    }
+}
+
+var x = foo()
+x() // 0
+x() // 1
+x() // 2
+
+// We CANNOT replace the functon with its value and the state is inconsistent
+// Not referentially transparent
+```
+
 ---
