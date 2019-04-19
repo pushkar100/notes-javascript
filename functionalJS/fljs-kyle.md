@@ -682,4 +682,63 @@ x() // 2
 // Not referentially transparent
 ```
 
+#### General to Specialized application using Closures
+
+We can defer the execution of a function by passing partial arguments bit by bit. Consider a function that adds 3 numbers:
+
+```javascript
+function add(x, y, z) {
+    return x + y + z
+}
+
+var add345 = add(3, 4, 5) // 12
+```
+
+Now, if adding was:
+1. An expensive operation, and 
+2. We did not have all the data, and needed to pass on the function to a 3rd party
+
+In such a case, **partial application** or **currying** helps!
+
+**Partial Application**
+
+There are only 2 levels of functions: One for partial args, one for all the remaining args.
+
+```javascript
+function add(x, y, z) {
+    return x + y + z
+}
+
+function partial(fn, ...firstArgs) {
+    return function applied(...remainingArgs) {
+        return fn(...firstArgs, ...remainingArgs)
+    }
+}
+
+var addTo3 = partial(add, 3)
+addTo3(4, 5) // 12
+```
+
+**Currying**
+
+There can be `n` levels of functions: Each time we pass in arguments bit-by-bit
+
+```javascript
+function add(x, y, z) {
+    return x + y + z
+}
+
+function curryAdd(fn, firstArg) {
+    return function curryMore(secondArg) {
+        return function applied(thirdArg) {
+            return fn(firstArg, secondArg, thirdArg)
+        }
+    }
+}
+
+var add3 = curryAdd(add, 3)
+var add4 = addTo3(4)
+var add5 = add4(5) 
+add5 // 12
+```
 ---
