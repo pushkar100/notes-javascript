@@ -1,7 +1,10 @@
 # Mocha, Chai, & Sinon Short Notes
 [Mocha, Chai, and Sinon Cheatsheet](https://gist.github.com/yoavniran/1e3b0162e1545055429e#chai)
+
 [BDD style assertions: expect/should](https://www.chaijs.com/api/bdd/)
+
 [Chai as promised](https://www.chaijs.com/plugins/chai-as-promised/)
+
 [Sinon JS](https://sinonjs.org/)
 
 ```javascript
