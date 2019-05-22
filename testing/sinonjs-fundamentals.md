@@ -110,6 +110,8 @@ mySpy.args[0][1].should.equal('YYYY')
 // OR
 mySpy.getCall(0).args[1].should.equal('YYYY')
 
+// Favor `args` over `called`
+
 
 /* 5. Catching errors thrown by a function */
 
