@@ -230,3 +230,69 @@ myStub.functionName('arguments', 'to', 'someFunction')
 
 1. Spies monitor behavior (What is called, what is returned, what is passed, etc) - It does not alter the function.
 2. Stubs perform whatever action you want for a particular function - alters it. Use when controlling the flow or preventing some undesirable behavior.
+
+## Mocks
+
+**Mocks are fake methods (spies) with pre-programmed behavior (stubs) as well as pre-programmed expectations. A mock will fail your test if it is not used as expected.**
+
+With mocks, we specify the object we want to mock, not a method on it.
+
+```javascript
+/* WAYS TO DEFINE MOCKS */
+const myMock = sinon.mock(anObject)
+```
+
+Mocks do *not* wrap its methods like stubs do! Behind the scenes, mocks are different from stubs and spies.
+
+Main use case for mocks:
+
+- Use mocks to **verify** behavior, not just specify it (like stubs).
+
+```javascript
+/* WAYS TO USE A MOCK */
+
+// NOTE: When you create a mock, the next step is to assign expectations that you want it to meet.
+// The `expects()` method exists on a mock.
+myMock.expects('someMethod').atLeast(1) // expect the someMethod method to be called at least once
+
+/* 1. Call count expectations (just like spies) */
+myMock.expects('someMethod').atMost(3) // at the most 3 times
+myMock.expects('someMethod').exactly(4) // called exactly 4 times
+myMock.expects('someMethod').never() // never called
+myMock.expects('someMethod').once() // called once
+myMock.expects('someMethod').twice() // called twice
+myMock.expects('someMethod').thrice() // called thrice
+
+
+/* 2. Defining parameters it expects to get passed (like stubs) */
+myMock.expects('someMethod').withArgs(1)
+myMock.expects('someMethod').withExactArgs('a', 1, someObj)
+
+/* 3. Resolving/rejecting promises (like stubs) */
+myMock.expects('someMethod').resolves(1)
+myMock.expects('someMethod').rejects({ err: 'Bad error' })
+
+// NOTE: Expectations always return an expectation object (Chainable)
+/* 3. Chaining expectations */
+myMock.expects('someMethod').once().withArgs(1) // expect someMethod to be called once with 1 as arg
+myMock.expects('someMethod').once().withArgs(1).resolves('Success')
+
+// 4. Final step: Verifying a mock.
+myMock.verify()
+// This is powerful because it checks every expectation set on the mock
+// For every expectation, the result is provided (if it failed or passed, with reason & value)
+// This gives us much more insight into our test case.
+```
+
+All the steps:
+1. Define the mock on an object
+2. Specify the expectations
+3. Run the function under test / observation
+4. Verify the mock with `.verify()`
+
+**Mocks versus Spies versus Stubs**
+1. Spies do not alter the function, only monitor it
+2. Stubs are great at modifying behavior of functions, intercept it, fake it, etc.
+3. Mocks are enforcers - It is the best way to ensure that the function you are faking out is behaving exactly the way in which you want it to behave (by setting multiple expectations). It will throw an exception if it is not behaving exactly according to expectations.
+
+**Use mocks sparingly (Stubs are enough for most cases): Only when you have multiple expectations from one method/object**
