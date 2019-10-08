@@ -942,7 +942,7 @@ We can create streams in **Node** for transfer of data.
 
 - They *increase performance*. Reading and writing huge amounts of data (Esp. files) in one go is a hit on performance. Doing them in chunks is better.
 - They are essential for *scalability*. We are able to manage small chunks of data at a time and process them fast. Communication over the internet too happens in small chunks using streams.
-- Streams use ***memory*** and ***bandwidth*** efficiently when async operations (such as data chunk arriving from a stream) occur.
+- Streams use ***memory*** and ***bandwidth*** efficiently (less) when async operations (such as data chunk arriving from a stream) occur.
 
 
 
@@ -1294,8 +1294,113 @@ function processFile(inStream) {
 
 **Note**: Vim automatically unzips and displays a zipped file with the extension `.gz`. You can use `cat` to verify that it indeed compressed the file.
 
+Chunks come in one by one, not at the same time and definitely not synchronously. For example, changing a part of the above snippet to...
+
+```js
+//...
+else if (args.file) {
+    let stream = fs.createReadStream(path.join(basePath, args.file))
+    processFile(stream) // Sending the file's contents as an input stream.
+    console.log('End');
+}
+//...
+```
+
+... will produce the output:
+
+```shell
+$ ./ex3.js --file files/hello.txt --out
+End
+HELLO WORLD$_
+```
+
+The file was obviously processed after the `End` was printed.
+
 
 
 **Detecting the end of a stream**
+
+We have seen that the end of the stream cannot be ascertained easily. We need a signal that the stream has ended. The stream provides an event to tell us when the stream has ended. Using the `on` method available on a stream, we can listen to many events, one of them being `end`. We can write a helper function that listens to the end of a stream and returns a promise:
+
+```js
+function streamComplete(stream) {
+    return new Promise(resolve => {
+        stream.on('end', resolve);
+    });
+}
+```
+
+We can modify the process file function so that it is an async function that waits for `streamComplete` function to resolve on the `outStream` and then we will print the end message:
+
+```js
+async function processFile(inStream) {
+    let targetStream
+    let outStream
+
+    //...
+    //...
+    //...
+
+    outStream.pipe(targetStream) // From source to destination
+
+    // Wait for stream completion so that we may end with a message:
+    await streamComplete(outStream);
+
+    console.log('\n\nStream complete')
+}
+```
+
+The whole snippet when run will give us the output:
+
+```shell
+$ ./ex3.js --file files/hello.txt --out
+HELLO WORLD
+
+Stream complete
+$_
+```
+
+
+
+**Asynchronous cancellation and timeout**
+
+Promises are great at resolving or rejection but they are also *kind of like a black box*. That is, we do not know the status of the process inside until it moves to an end state of the promise.
+
+If the processing is too large and we wanted it to timeout or cancelled for some other reason, it cannot be done with promises. However, there are libraries that help you do this exact same thing by way of wrapping around a generator function (instead of a promise returning function). One such library is **`CAF`** written by Kyle (https://github.com/getify/caf)
+
+
+
+**Unpiping**
+
+We can use **`unpipe`** in the same way as `pipe` to unsend data from a readable stream to a writable stream. In this way, whatever was sent can be revoked or discarded. For example:
+
+```js
+outStream.pipe(targetStream) // Will pipe the chunk into the target
+outStream.unpipe(targetStream) // Will unpipe it, nullifying the earlier pipe
+```
+
+Note that we *cannot* unpipe after the *stream has completed*.
+
+
+
+**Killing the stream processing**
+
+We call the **`destroy()`** method on a stream to do so. Example:
+
+```js
+outStream.destroy()
+```
+
+
+
+**Topics not covered in notes (but part of course)**:
+
+1. Child processes
+2. Web servers
+3. Database
+
+---
+
+
 
 
