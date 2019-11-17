@@ -1,6 +1,27 @@
 /**
  * AUTHOR: Pushkar DK (www.pushkardk.com, www.github.com/pushkar100)
  * A custom promise implementation that follows the ADT of the ECMAScript Promise Specification.
+ * 
+ * Example usages:
+ * 
+ * var b = new APromise((res, rej) => setTimeout(() => rej(), 8000))
+ * b.then(() => console.log('1'))
+ * .then(() => console.log('2'))
+ * .catch(() => console.log('c'))
+ * .finally(() => { console.log('f'); throw Error() })
+ * .then(() => console.log('4'))
+ * .catch(() => console.log('c2'))
+ * 
+ * var a = new APromise(res => setTimeout(() => res(1), 8000))
+ * var b = new APromise((res, rej) => setTimeout(() => res(2), 8500))
+ * var c = new APromise(res => setTimeout(() => res(3), 9000))
+ * APromise.all([a, b, c]).then(data => console.log('data', data)).catch(data => console.log('catch data', data))
+ * 
+ * var a = new APromise(res => setTimeout(() => res(1), 8000))
+ * var b = new APromise((res, rej) => setTimeout(() => rej(2), 8500))
+ * var c = new APromise(res => setTimeout(() => res(3), 9000))
+ * APromise.allSettled([a, b, c]).then(data => console.log('data', data)).catch(data => console.log('catch data', data))
+ *
  */
 class APromise {
   constructor(callback) {
