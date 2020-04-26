@@ -353,7 +353,7 @@ Webpack itself is *80%* composed of plugins. It helps with their dog-fooding, im
 
 
 
-##Passing variables to Webpack 
+## Passing variables to Webpack 
 
 Webpack config can actually be a function that returns an object (i.e the config itself) instead of a plain object. This allows us to pass in variables to this function.
 
