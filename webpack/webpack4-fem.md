@@ -746,6 +746,30 @@ Add the **`devtool: "source-map"`** property in the root of the webpack config. 
 
 Perhaps we can load source maps as presets so that only when we want to debug, we can have it.
 
+## Building a library: Should you use Webpack?
+
+The answer is **NO**. 
+
+The reason is that if the library is *pre-bundled* using Webpack then when it is imported in one of third-party code bases, Webpack will not be able to analyze and tree-shake it (along with other optimisations). 
+
+It is better to ship the ES6+ source code such that Webpack in the consumer code can optimize and bundle it.
+
+## Building a library: Should you use Babel to transpile it before others use it?
+
+The answer is **NO**.
+
+The reason is that if the library is transpiled completely (including the modules) then it poses the same problem as in the previous question. That is, webpack cannot tree-shake and optimize it *if the transpile has **pre-converted** the modules into CommonJS/AMD/etc*. 
+
+## Using Babel-ify (`babel-loader`) with Webpack
+
+We can babelify our code but **not** transform the modules. Webpack understands ES6+ ou of the box thanks to the "acorn" parser that it uses.
+
+There are many presets (such as `env`) that convert the modules into CommonJS or AMD or UMD so that it works in the browser. We can do this in webpack `output` itself ad not babel because it gives us the power to tree-shake and optimize the code (Remember: If code is already bundled as CommonJS or AMD, Webpack cannot optimize it). 
+
+Add the `"modules": false` property in babel config such that it is not bundled into CommonJS/AMD/UMD by itself.
+
+We can, however, add the presets that do not modify the modules. Use babel if the environment does not understand ES6+ syntax but leave the modules to be handled by Webpack.
+
 ---
 
 
