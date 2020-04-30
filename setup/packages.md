@@ -150,7 +150,8 @@ Every package is a `devDependency` unless specified otherwise.
     - `@babel/preset-env`
         - The level of transpilation (`env` is quite common) and is sufficient in most cases
     - `@babel/cli`
-        - Use only if you are using babel from the command line. Ignore, if used via webpack!
+        - Use only if you are using babel from the command line. **Ignore, if used via webpack!**
+        - Gives us the `babel` command on the CLI
 - For Webpack:
     - `babel-loader`
         - Need it to transpile (js) files before webpack bundles them
