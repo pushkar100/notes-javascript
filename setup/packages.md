@@ -190,6 +190,9 @@ Every package is a `devDependency` unless specified otherwise.
     - `eslint-plugin-prettier`
         - Helps ESLint work smoothly with Prettier
         - When Prettier formats code, it does it keeping our ESLint rules in mind
+        - Integrates the Prettier rules into ESLint rules
+    - `eslint-config-prettier`
+        - Turns off all ESLint rules that could conflict with Prettier,
 - For Jest:
     - `eslint-plugin-jest`
         - ESLint plugin for Jest
