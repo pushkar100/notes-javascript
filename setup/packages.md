@@ -117,7 +117,7 @@ Every package is a `devDependency` unless specified otherwise.
         - Enables `Provider` & `connect`
 
 - CSS in JS:
-    - `styled-components`
+    - `styled-components` (dep)
         - Allows us to write styles for our components inside it
         - Uses string literals, is scoped to component, etc
 
