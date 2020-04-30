@@ -160,6 +160,9 @@ Every package is a `devDependency` unless specified otherwise.
 - For React:
     - `@babel/preset-react`
         - Enables transpilation of React code (Ex: JSX into JS functions)
+- For Poyfilling:
+    - `@babel/polyfill` (dep)
+        - Runtime polyfilling
 - Support for latest features (Proposal / Below stage-2):
     - `@babel/plugin-proposal-class-properties`
         - [Link to explanation](https://babeljs.io/docs/en/next/babel-plugin-proposal-class-properties.html)
