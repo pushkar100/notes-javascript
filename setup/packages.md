@@ -149,6 +149,8 @@ Every package is a `devDependency` unless specified otherwise.
         - The core babel package containing the 'Babylon' parser
     - `@babel/preset-env`
         - The level of transpilation (`env` is quite common) and is sufficient in most cases
+    - `@babel/cli`
+        - Use only if you are using babel from the command line. Ignore, if used via webpack!
 - For Webpack:
     - `babel-loader`
         - Need it to transpile (js) files before webpack bundles them
