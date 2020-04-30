@@ -164,11 +164,13 @@ Every package is a `devDependency` unless specified otherwise.
 - For Poyfilling:
     - `@babel/polyfill` (dep)
         - Runtime polyfilling
-- Support for latest features (Proposal / Below stage-2):
+- Plugins (Support for latest features - Proposal / Below stage-2):
     - `@babel/plugin-proposal-class-properties`
         - [Link to explanation](https://babeljs.io/docs/en/next/babel-plugin-proposal-class-properties.html)
     - `@babel/plugin-proposal-export-namespace-from`
         - [Link to explanation](https://babeljs.io/docs/en/next/babel-plugin-proposal-export-namespace-from.html)
+    - `@babel/plugin-proposal-pipeline-operator`
+        - Used to allow pipeline operator (`|>`)
 
 ## ESLint & Prettier
 
