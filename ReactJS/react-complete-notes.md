@@ -53,7 +53,7 @@ The result is that `<h1>Hello world</h1>` gets rendered inside the *#root* eleme
 - The third argument that was passed into `createElement` can also be another component
 - Now, we have a *hierarchy* of components forming our application
 
-```react
+```jsx
 const Pushkar = () => {
   return React.createElement("span", {}, "Pushkar");
 };
@@ -80,7 +80,7 @@ The above snippet outputs `Hello Pushkar` in our HTML.
 - Since our components are essentially functions and we can pass in arguments.
 - The **props** object that is defined while creating a component becomes the argument that is passed in to our component function.
 
-```react
+```jsx
 const People = ({ name }) => {
   // Destructuring the argument to fetch individual props
   return React.createElement("span", {}, name);
@@ -330,7 +330,7 @@ The above snippet outputs `Hello Pushkar Rahul`
 
 We can do this manually or highlight a component function/class and select the *lightbulb* (intellisense) from VSCode and select the `move to a new file` option (it takes care of file creation, import updation, and so on)
 
-```react
+```jsx
 import React from 'react'
 import ReactDOM from 'react-dom'
 import childComponent from './path/to/child'
@@ -361,7 +361,7 @@ Therefore `React.createElement(App)` becomes simply `<App />`!
 
 We use curly braces **`{}`** containing expressions to interpolate their values into our JSX (Ex: `{1 + 1}` or `{value}` where `value` is some variable identifier)
 
-```react
+```jsx
 import React from "react";
 import ReactDOM from "react-dom";
 
@@ -416,7 +416,7 @@ One of the first problems that beginners to React face is the ***problem of upda
 
 The components in React *re-render* on updates from the business logic: When the **"state"** changes. Consider this scenario: You have an input that has a default javascript value as the input value. You try to change the input on the browser as a user but you cannot no matter how hard or fast you type into it!
 
-```react
+```jsx
 const App = () => {
   const value = 'Bangalore'
   return <input type="text" value={value} />;
@@ -467,7 +467,7 @@ There are many more reasons to use functions + hooks over classes (explored late
 - The output is an array: The first element is the current value of th state (same as the default value if it is the first time). The second element is a method used to update the state. Both can be destructured (common pattern)
 - Whenever we want to update our state, we will call the method used to update it (& the component will re-render if it needs to)
 
-```react
+```jsx
 import React, { useState } from "react";
 
 const App = () => {
@@ -498,7 +498,7 @@ We can extend hooks to extract out the logic from our component and provide pre-
 
 For example, we can create generic hooks that work with input elements, return child components that internally use a hook, etc. The possibilities are endless. Let's take a look at a simple custom hook:
 
-```react
+```jsx
 import React, { useState } from "react";
 
 const customInputHook = initialValue => {
@@ -542,7 +542,7 @@ Syntax: `useEffect(callback, [dependencies])`
 
 It is usually used for external activity like API data fetching, other asynchronous tasks, tasks to be performed on user actions that change the component state, and so on
 
-```react
+```jsx
 import React, { useState, useEffect } from "react";
 
 const App = () => {
@@ -637,7 +637,7 @@ When you have a single page application (SPA), you are not shifting HTML pages. 
 
 Basic usage:
 
-```react
+```jsx
 import { Router, Link } from '@reach/router'
 
 /* ... */
@@ -663,7 +663,7 @@ const App = () => {
 
 ### React Router
 
-```react
+```jsx
 // Basic usage is very similar to Reach Router
 ```
 
@@ -675,7 +675,7 @@ If we need *state* and *lifecycle* methods, we had to convert our apps to classe
 
 **Simple class component**:
 
-```react
+```jsx
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 
@@ -698,7 +698,7 @@ ReactDOM.render(<App />, document.getElementById("root"))
 - Every time we want to update our state, we call `this.setState()` and pass it an object. This method is implicitly available since we extend the `Component` class of React. The method does a ***shallow merge*** of previous state with the new state.
 - We refer to the props using `this.props` inside our class methods (constructor is the only exception)
 
-```react
+```jsx
 class App extends Component {
   constructor(props) {
     super(props);
@@ -728,7 +728,7 @@ class App extends Component {
 
 Use a `static` class method called `getDerivedStateFromProps` in order to directly map your props to the state. This helps to add to your state those things that are ***computable*** from the props.
 
-```react
+```jsx
 const App = () => {
   const initialCount = 10;
   return (
@@ -766,13 +766,13 @@ We have a few workarounds to help ***preserve the context*** to the class (so th
 
 1. Use arrow functions in the event handlers and from there call the actual method:
 
-   ```react
+   ```jsx
    <button onClick={(e) => this.onClickHandler(e)}>Increment</button>
    ```
 
 2. Bind all the class methods in the constructor to the `this` keyword (when the bind happens, the class is the context and it will not change afterwards)
 
-   ```react
+   ```jsx
    constructor(props) {
      // ...
      // Method bindings:
@@ -780,7 +780,7 @@ We have a few workarounds to help ***preserve the context*** to the class (so th
    }
    ```
 
-   ```react
+   ```jsx
    <button onClick={this.onClickHandler}>Increment</button>
    ```
 
@@ -788,7 +788,7 @@ We have a few workarounds to help ***preserve the context*** to the class (so th
 
    - It allows us to define instance properties outside the constructor (internally still the same)
 
-   ```react
+   ```jsx
    class App extends Component {
      state = { count: 0 }; // Same as this.state = {...} within the constructor
    
@@ -813,7 +813,7 @@ We have a few workarounds to help ***preserve the context*** to the class (so th
 
 **Note**: Do *not* do the following:
 
-```react
+```jsx
 <button onClick={this.onClickHandler.bind(this)}>Increment</button>
 ```
 
@@ -837,7 +837,7 @@ Whenever we have an unknown error (exception) in our class component that is not
   - A pass through component that does not utilize the props intended for the child component(s). We can make a functional component that accepts the props, render the error boundary and within it the actual component that we want to protect from errors, and to it we shall pass the props (not to error boundary)
 - **Note**: Children inside a component can be accessed via `this.props.children`
 
-```react
+```jsx
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -863,7 +863,7 @@ class ErrorBoundary extends Component {
 }
 ```
 
-```react
+```jsx
 class Greeting extends Component {
   componentDidMount() {
     throw new ReferenceError(); // will crash app without error boundary
@@ -880,7 +880,7 @@ const GreetingWithErrorBoundary = props => (
 ); // Usually what you would export from an error boundary wrapped component module
 ```
 
-```react
+```jsx
 const App = () => {
   return <GreetingWithErrorBoundary greeting="Hello!" />;
 };
@@ -900,7 +900,7 @@ Context is primarily used when some data needs to be accessible by many componen
 - The `contextType` property on a class (Not an object) can be assigned the context that we have created. This lets you consume the nearest current value of that Context type using `this.context`. 
 - How do we access context insde functional components? By wrapping the JSX of the component inside `<ContextIdentifier.Consumer></ContextIdentifier.Consumer>`. Inside it, we can have a callback expression that receives the context `value` *(Weird syntax!)*. 
 
-```react
+```jsx
 const ColorContext = React.createContext("#111"); // Default applied if Provider with value is not present
 
 const App = () => {
@@ -952,7 +952,7 @@ Portals provide a first-class way to render children into a DOM node that exists
 
 **Note**: It is defined on the **ReactDOM** (not React)
 
-```react
+```jsx
 ReactDOM.createPortal(child, container)
 ```
 
@@ -975,7 +975,7 @@ The first argument (`child`) is any renderable React child, such as an element, 
 
 Let's create a wrapper component called `Modal` which takes the child components and inserts into the portal. We have a DOM into which we insert another DOM element from the `Modal` when the component mounts.
 
-```react
+```jsx
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 
