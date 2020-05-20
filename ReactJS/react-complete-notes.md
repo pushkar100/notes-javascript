@@ -19,7 +19,7 @@ You need **two** libraries to make a react application:
 2. The component is a function that *returns something*.
 3. This component (function) is passed to **ReactDOM** along with the DOM element where we want to render it
 
-```react
+```jsx
 import React from "react";
 import ReactDOM from "react-dom";
 
