@@ -1,4 +1,4 @@
-# Typescript CLI and Config Basics
+# Typescript CLI & config basics
 
 Sources:
 
@@ -55,7 +55,7 @@ export async function addNumbers(a: number, b: number) {
 
 ```json
 {
-    includes: ["src"], //"files": ["./src/index.ts"]
+    "includes": ["src"], //"files": ["./src/index.ts"]
     "compilerOptions": {
         "target": "ES2015",
         "module": "CommonJS",
