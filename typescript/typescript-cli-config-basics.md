@@ -1,4 +1,4 @@
-# Typescript
+# Typescript CLI and Config Basics
 
 Sources:
 
