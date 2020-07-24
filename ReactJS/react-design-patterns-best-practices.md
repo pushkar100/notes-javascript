@@ -498,4 +498,455 @@ React.createElement(Button) // Not a string? So, a react component (internally, 
    - **Currying**: When a function that takes multiple arguments is replaced by higher order functions that return functions allowing us to apply inputs one by one at different times. Helps us compose software well
    - Think of functional programmig in react as **`UI = f(state)`**. Given the same state, the same UI must be returned (idempotent). Therefore, our component can be the function `f`, our state being the input to the component and the UI is what the `render()` method produces
 
+## Reusable components
+
+### Creating class (stateful) components
+
+There are **two** ways: `React.createClass` and `class <name> extends React.Component`. The former is a factory method while the later using the class syntax of ES2015.
+
+**React developers recommend using the ES6 class based syntax**. In this:
+
+1. You `extend` a class called `React.Component`
+2. If constructor is defined, invoke `super` with the props (`super(props)`)
+
+**`React.createClass`**
+
+```js
+// Invoke the factory with an object as the argument
+const Button = React.createClass({
+  propTypes: { 
+    text: React.PropTypes.string, 
+  }, 
+ 
+  getDefaultProps() { // You have to specify a function that gives default object for props
+    return { 
+      text: 'Click me!', 
+    } 
+  }, 
+ 
+  render() { 
+    return <button>{this.props.text}</button> 
+  }, 
+})
+```
+
+**`ES6 class`**
+
+```js
+class Button extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+  
+  render() { 
+    return <button>{this.props.text}</button> 
+  } 
+} 
+
+// `propTypes` becomess a static property object of the class:
+Button.propTypes = { 
+  text: React.PropTypes.string, 
+} 
+
+// Instead of `getDefaultProps`, we use a static property:
+// An object called `defaultProps`
+Button.defaultProps = {
+  text: 'Click me!', 
+}
+```
+
+### State declaration
+
+**In `React.createClass`** (We define a `getInitialState` method)
+
+```js
+const Button = React.createClass({ 
+  // We use a method `getInitialState` that returns an object that is the state!
+  getInitialState() { 
+    // This becomes the initial state of the component
+    return { 
+      text: 'Click me!', 
+    } 
+  }, 
+ 
+  render() { 
+    // Can access the state using `this.state`
+    return <button>{this.state.text}</button> 
+  }, 
+})
+```
+
+**In `ES6 class`**
+
+```js
+class Button extends React.Component { 
+  constructor(props) { 
+    super(props) 
+ 
+    // We use a special instance variable `this.state` and assign it an object
+    // This becomes the initial state of the component
+    this.state = { 
+      text: 'Click me!', 
+    } 
+  }
+  
+  render() { 
+    // Can access the state using `this.state`
+    return <button>{this.state.text}</button> 
+  } 
+}
+```
+
+### Autobinding problem in class components (`this`)
+
+**With `React.createClass`**
+
+We can set an *event handler* in the following way and rely on the fact that this inside the function refers to the component itself. That is, there is **no autobinding problem with `createClass`**
+
+```js
+const Button = React.createClass({ 
+  handleClick() { 
+    console.log(this) // `this` will refer to the component ✅
+    // Can call other component methods here
+  }, 
+ 
+  render() { 
+    return <button onClick={this.handleClick} /> 
+  }, 
+})
+```
+
+**With `ES6 class`**
+
+We cannot set an *event handler* in the following way because *we lose the **this** reference when that function gets called from the event handler*
+
+```js
+class Button extends React.Component { 
+  handleClick() { 
+    console.log(this) // `this` will be null ❌
+    // Cannot call other component methods here!
+  } 
+ 
+  render() { 
+    return <button onClick={this.handleClick} /> 
+  } 
+}
+```
+
+**Autobinding solution in class component**
+
+There are a few ways:
+
+1. ***Register an arrow function*** that invokes the instance method. In this way, the this value is preserved
+
+   - However, this is a ***non-performant way*** of doing things and ***must be avoided***
+
+   - Binding a function inside the render method has an *unexpected side-effect* because the arrow function gets fired every time the component is rendered (which happens multiple times during the lifetime of the application). There are two inefficiencies because of this:
+     - Overhead of arrow function being fired on every render (& this render can occur quite often)
+     - An even larger problem is that we are passing the function down to a child component. So, receives a new prop on each update which leads to inefficient rendering, and that represents a problem, especially if the component is pure!
+
+   ```js
+   // Works but is a non-performant solution ❌
+   class Button extends React.Component { 
+     handleClick() { 
+       console.log(this) 
+     } 
+    
+     render() { 
+       return <button onClick={() => this.handleClick()} /> 
+     } 
+   }
+   ```
+
+2. ***Bind the instance method*** to the component (in constructor) so that the `this` context is ***never altered***
+
+   ```js
+   // Works and is performant ✅
+   class Button extends React.Component { 
+     constructor(props) { 
+       super(props) 
+    		// We usually bind inside constructor (ensures other methods execute post binding)
+       this.handleClick = this.handleClick.bind(this) // Permanent binding of `this`
+     } 
+    
+     handleClick() { 
+       console.log(this) 
+     } 
+    
+     render() { 
+       return <button onClick={this.handleClick} /> 
+     } 
+   }
+   ```
+
+3. There is a 3rd way that relies on a class properties proposal getting a nod from the specification TC39 authority *(The example is not shown here and we need a babel plugin as of now to make it work)*
+
+### Stateless components
+
+Functional components or pure components are known to be **stateless**. That is, they. do **not** have state!
+
+They are as simple as a function returning some JSX.
+
+Functional components receive **two** properties:
+
+1. The props
+2. The context
+
+```js
+// Example 1
+const Button = ({ text }) => <button>{text}</button>
+
+
+// Example 2
+const Button = (props, context) => ( 
+  <button>{context.currency}{props.value}</button> 
+)
+```
+
+**Limitations of stateless components**
+
+1. The `this` does not represent the component. You cannot call `this.setState()` or any other instance method
+
+2. There is **no state** but only props and context. These are arguments and tthe render only depends on them. Therefore, functional components are closer to the functional programming paradigm (i.e **pure**)
+
+3. There are **no lifecycle methods**. Parent handles everything - if it invokes it, it will re-render
+
+4. Handling **refs**: We define a callback method for the `ref` JSX attribute which receives the ref value
+
+   ```js
+   () => { 
+     let input 
+     
+     const onClick = () => input.focus()
+   	
+     return ( 
+       <div> 
+         <input ref={el => (input = el)} /> 
+         <button onClick={onClick}>Focus</button> 
+       </div> 
+     ) 
+   }
+   ```
+
+5. They are ***not as performant as stateful components*** since ***there is no way to tell them not to render if props don't change or change partially***
+
+### State in-depth
+
+1. **Every time the state changes, React renders the component again with the new state**, which is why documentation often says that a React component is similar to a **state machine.** 
+
+2. We may want to perform some operations when the state is updated, and React provides a **callback** for that:
+
+   ```js
+   this.setState({ 
+     clicked: true, 
+   }, () => { 
+     console.log('the state is now', this.state) // { clicked: true }
+   }
+   ```
+
+3. State updates are **asynchronous**. React tries to optimize state updates from *event handlers* and *batches* them (However, it cannot always optimise and sometimes it is synchronous). We cannot guarantee synchronicity!
+
+   ```js
+   // Assuming `clicked` is false initially
+   handleClick() { 
+     this.setState({ 
+       clicked: true, 
+     }) 
+     console.log('the state is now', this.state) // { clicked: false } !
+   } 
+    
+   render() { 
+     return <button onClick={this.handleClick}>Click me!</button> 
+   }
+   ```
+
+   Outside of event handlers, react cannot optimize much and triggers state updates as soon as possible
+
+**When to use state and what must it contain?**
+
+***State must contain only:***
+
+1. Minimal amount of data (Ex: If you are changing button text on click, keep a flag and not the texts)
+2. Keep in state only the values we want to update when an event, that must cause a re-render, happens 
+3. Store only the information dealing with current UI (Ex: If the value needed outside component such as parent or children or in multiple places, consider an application level state manager such as Redux)
+
+***State must not contain:***
+
+1. Computed props. If the final values is constructed from the props, do not keep it in state. Use instance methods or getters and setters instead.
+
+   - Why is it bad? If props update but not the state, the component will not re-render causing problems
+
+   ```js
+   // Bad! ❌
+   constructor(props) {
+     super(props) 
+     this.state = { 
+       price: `${props.currency}${props.value}` 
+     } 
+   }
+   
+   // Good! ✅
+   getPrice() { 
+     return `${this.props.currency}${this.props.value}` 
+   }
+   ```
+
+2. Anything in the state that is *not* being used in the `render()` method. Such values are not responsible for re-rendering and hence don't make sense being in the state. A good solution is to keep such values in an external module or as instance variables (not state variables)
+
+   ```js
+   // Bad! ❌
+   // this.state.request is not going to be used inside render()
+   componentDidMount() { 
+     this.setState({ 
+       request: API.get(...) 
+     }) 
+   }
+   componentWillUnmount() { 
+     this.state.request.abort() 
+   }
+     
+   // Good! ✅
+   // Keeping such values as instance variables and not state:
+   componentDidMount() { 
+     this.request = API.get(...) 
+   } 
+   componentWillUnmount() { 
+     this.request.abort() 
+   }
+   ```
+
+**Cheetsheet for deciding state value**
+
+```js
+function shouldIKeepSomethingInReactState() {
+  if (canICalculateFromProps()) {
+    // Don't duplicate data from props in state
+    // Calculate what you can in render() method
+    return false
+  }
+  if (!amIUsingItInRenderMethod()) {
+    // Don't keep something in state if you don't use it for rendering
+    // For example, API subscriptions are better off as custom private
+    // fields or variables in external modules
+    return false
+  }
+  
+  // You can use React state for this!
+  return true
+}
+```
+
+### PropTypes
+
+Our components must be well-defined with clear boundaries which make them straight-forward to use. We can add some validation rules for the props that our component requires.
+
+`PropTypes` is a named export of the `react` library and it type checks our props for a component. We define  a static `propTypes` (camelCase) property on the component for which we want to define prop types for.
+
+**Note:** PropType validation is **disabled in production mode** for **performance** (Used only in development)
+
+We can use:
+
+1. Built-in types (Ex: `PropTypes.string`)
+2. Built-in aggregators or conditionals (Ex: `PropTypes.oneOf(<An array of different PropTypes>)`)
+3. Built-in mandatory checks (Ex: `PropTypes.isRequired` or `PropTypes.number.isRequired`)
+4. "Shapes" to describe objects
+5. Custom functions which let us do our own validation
+
+Regarding point **4**, we are discouraged from passing whole objects to components as props. We should usually only *send primitive values* because they are simpler to *validate and compare* (instead of reference comparison) making them easy to test and debug
+
+However, we cannot always prevent ourselves from sending objects. In this case, we can define the shape of the object with `PropTypes.shape`
+
+```js
+const Profile = ({ id, user, age }) =>( 
+  <div>{id} : {user.name} {user.surname} | {age}</div> 
+)
+
+// camelCased static property called 
+Profile.propTypes = { 
+  id: React.PropTypes.number.isRequired,
+  user: React.PropTypes.shape({ 
+    name: React.PropTypes.string.isRequired, 
+    surname: React.PropTypes.string, 
+  }).isRequired, 
+  age: (props, propName) => { 
+    if (!(props[propName] > 0 && props[propName] < 100)) { 
+      return new Error(`${propName} must be between 1 and 99`) 
+    } 
+    return null 
+  },
+}
+```
+
+### Documentation of components and props
+
+Some tools that are useful for documenting components:
+
+1. **`react-docgen`** which documents the component props from its prop types
+2. **`react-storybook`** which documents components *visually*. It has stories inside which we describe the component for each state of the component. Generates an HTML page
+
+### Reusable components in action
+
+Do not duplicate code (DRY principle). So, if there are similar ***specific-to-use-case components***, we can convert them into a ***single, more generic component which is configurable***.
+
+```js
+// Bad! ❌
+const PostList = ({ posts }) => ( 
+  <ul> 
+    {posts.map(user => ( 
+      <li key={posts.id}> 
+        <h1>{posts.title}</h1> 
+        {posts.excerpt && <p>{posts.excerpt}</p>} 
+      </li> 
+    ))} 
+  </ul> 
+)
+const UserList = ({ users }) => ( 
+  <ul> 
+    {users.map(user => ( 
+      <li key={user.id}> 
+        <h1>{user.username}</h1> 
+        {user.bio && <p>{user.bio}</p>} 
+      </li> 
+    ))} 
+  </ul> 
+)
+```
+
+```js
+// Good! ✅
+const Item = ({ text, title }) => (
+  <li>
+    <h1>{title}</h1>
+    {text && <p>{text}</p>}
+  </li>
+)
+const List = ({ collection, textKey, titleKey }) => ( 
+  <ul> 
+    {collection.map(item => 
+      <Item  
+        key={item.id}  
+        text={item[textKey]}  
+        title={item[titleKey]}  
+      /> 
+    )} 
+  </ul> 
+)
+
+// Reusing List and indirectly, Item:
+const PostList = ({ posts }) => (
+  <List  
+    collection={posts}  
+    textKey="excerpt"  
+    titleKey="title"  
+  />
+)
+const UserList = ({ users }) => ( 
+  <List  
+    collection={users}  
+    textKey="bio"  
+    titleKey="username"  
+  /> 
+)
+```
+
 
