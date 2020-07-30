@@ -325,5 +325,250 @@ render() {
 
 ## Pattern 7: State initialisers
 
-This pattern allows us to set an initial state and to reset the state to its initial one when it has changed
+This pattern allows us to:
+1. Set an initial state from the props (instead of hardcoding it), and
+2. To reset the state to its initial one when it has changed
 
+```js
+// Usage example: Pass initial state via `initialOn` props
+// Have a `onReset` callback
+// Also, expose the reset method as render prop argument
+<Toggle
+  initialOn={initialOn}
+  onToggle={onToggle}
+  onReset={onReset}
+>
+  {({getTogglerProps, on, reset}) => (
+    <div>
+      <Switch {...getTogglerProps({on})} />
+      <hr />
+      <button onClick={() => reset()}>Reset</button>
+    </div>
+  )}
+</Toggle>
+
+// Implementation snippet:
+class Toggle extends React.Component {
+  static defaultProps = { on: false }
+  initialState = {on: this.props.initialOn}
+  state = this.initialState
+  reset = () => {
+    this.setState(
+      initialState,
+      () => this.props.onReset(this.state.on),
+    )
+ }
+ //...
+}
+```
+
+## Pattern 8: State reducers
+
+State reducers allow users to be in control over logic based on actions. This is similar to redux.
+
+The basic idea is that any time there's an internal change in state, we first call a stateReducer prop with the current state and the changes. Whatever is returned is what we use in our setState call. This allows users of the component to return the changes they received or to modify the changes as they need.
+
+We can create a single function that does all the work before calling setState. Then we can replace all calls to setState with that function.
+
+This pattern allows us greater control of our state changes and the luxury of keeping our dumb components, dumb. By using per-component, custom reducers we can gate our setState calls and thus prevent unnecessary renders. 
+
+```js
+class ButtonWrapper extends React.Component {
+  state = { added: 0 }
+
+  controlledSetState (stateOrFunc) {
+    this.setState(state => {
+      /*  In this example we're only invoking the `controlledState` function in one place, so we
+       *  can be sure `stateOrFunc` is a function. Nonetheless, we'll check here. In some use cases
+       */ it might be a normal piece of the state
+      const changedState = typeof stateOrFunc === 'function' ? stateOrFunc(state) : stateOrFunc
+
+      /* `stateReducer` is guaranteed to return an empty object in this example,
+       * but it could be possible in other use cases that the return value is null.
+       * This will make sure we at least have a {} to return appropriately below.
+       */
+      const reducedState = this.props.stateReducer(state, changedState) || {}
+
+      /* We'll return the `reducedState` if something interesting happens
+       * i.e. we stay below our limit of 8. In other instances ( >= 8) we'll return `null`
+       * to prevent excessive re-renders.
+       */
+      return Object.keys(reducedState).length > 0
+      ? reducedState
+      : null
+    })   
+  }
+
+  addToCart = () => {
+    // Just being explicit with this assignment for readability
+    const fn = ({ added }) => ({ added: added + 1 })
+    this.controlledSetState(fn)
+  }
+
+  getWrapperState () {
+    return {
+      addToCart: this.addToCart,
+      added: this.state.added,
+    }   
+  }
+
+  render () {
+    return this.props.children(this.getWrapperState())   
+  }
+}
+```
+
+```js
+class CartButton extends React.Component {
+
+  /*
+   *  This is the only "intelligent" thing our dumb component
+   *  does: define its reducer. This is then passed on to
+   *  the ButtonWrapper as a prop.
+   */ 
+  addToCartStateReducer = (currentState, updatedState) => {
+    if (currentState.added >= 8) {
+      return { }   
+    }   
+    return updatedState
+  }
+
+  render () {
+    return (
+      <ButtonWrapper
+        stateReducer={this.addToCartStateReducer}
+      > 
+        {buttonLogic => (
+          <div>
+            <button onClick={buttonLogic.addToCart}>Add Item</button>
+          </div>
+        )}
+      </ButtonLogic>
+    )     
+  }
+}
+```
+
+State reducers help us:
+1. Give state change control to the user (ex: via `addToCartStateReducer`)
+2. Add restrictions on state changes (ex: Don't change state after 8 tries)
+3. Prevent re-renders if the state has not changed (by returning the same state or `null`)
+
+## Pattern 9: State reducers with change types
+
+This is the same as state reducers except that we explicitly provide the type of change on the state. This makes it easy for the staterReducer to act on what has changed (instead of figuring out). For example, passing in `type: 'reset'` to a button reset handler that calls setState
+
+This pattern is the one that's most similar to redux in its implementation
+
+```js
+// Component snippet:
+static stateChangeTypes = {
+  reset: '__toggle_reset__',
+  toggle: '__toggle_toggle__',
+}
+initialState = {on: this.props.initialOn}
+state = this.initialState
+internalSetState(changes, callback) {
+  this.setState(state => {
+    // handle function setState call
+    const changesObject =
+      typeof changes === 'function' ? changes(state) : changes
+
+    // apply state reducer
+    const reducedChanges =
+      this.props.stateReducer(state, changesObject) || {}
+
+    // remove the type so it's not set into state
+    const {type: ignoredType, ...onlyChanges} = reducedChanges
+
+    // return null if there are no changes to be made
+    return Object.keys(onlyChanges).length ? onlyChanges : null
+  }, callback)
+}
+
+reset = () =>
+  this.internalSetState(
+    {...this.initialState, type: Toggle.stateChangeTypes.reset},
+    () => this.props.onReset(this.state.on),
+  )
+toggle = ({type = Toggle.stateChangeTypes.toggle} = {}) =>
+  this.internalSetState(
+    ({on}) => ({type, on: !on}),
+    () => this.props.onToggle(this.state.on),
+  )
+  // ...
+```
+```js
+// Usage example (with state reducer):
+toggleStateReducer = (state, changes) => {
+  if (changes.type === 'forced') {
+    return changes
+  }
+  if (this.state.timesClicked >= 4) {
+    return {...changes, on: false}
+  }
+  return changes
+}
+// ...
+// render():
+<Toggle
+  stateReducer={this.toggleStateReducer}
+  onToggle={this.handleToggle}
+  onReset={this.handleReset}
+  ref={this.props.toggleRef}
+>
+  {({on, toggle, reset, getTogglerProps}) => ( /* ... */)
+</Toggle>
+```
+
+## Pattern 10: Control props
+
+This pattern can be used in place of state reducer pattern. The crux being that we want to control or sync the states of the similar child components
+
+[Watch the explanation video](https://egghead.io/lessons/react-make-controlled-react-components-with-control-props)
+
+[Read more here](https://kentcdodds.com/blog/control-props-vs-state-reducers)
+
+## Pattern 11: Provider pattern
+
+**Problem: Props drilling**
+
+When we are not using the provider pattern but just a compound component, we cannot pass the values down to any component that is not an immediate child. To solve this issue we used the context API
+
+When we used render props, we passed the props as arguments to the function. Now, if the components render inside pass down the values of those props to their children and so on, we will have to deal with those props at multi-levels. If the names or props change, we need to change it everywhere. 
+
+An example of this problem, with render props:
+```js
+// Layer 1 never uses the render props but passes it to its children
+const Layer1 = ({on, toggle}) => <Layer2 on={on} toggle={toggle} />
+// Layer 2 partially uses the render props
+const Layer2 = ({on, toggle}) => (
+  <Fragment>
+    {on ? 'The button is on' : 'The button is off'}
+    <Layer3 on={on} toggle={toggle} />
+  </Fragment>
+)
+// Layer 3 never uses the render props but passes it to its children
+const Layer3 = ({on, toggle}) => <Layer4 on={on} toggle={toggle} />
+const Layer4 = ({on, toggle}) => <Switch on={on} onClick={toggle} />
+
+function Usage({
+  onToggle = (...args) => console.log('onToggle', ...args),
+}) {
+  return (
+    <Toggle onToggle={onToggle}>
+      {({on, toggle}) => <Layer1 on={on} toggle={toggle} />}
+    </Toggle>
+  )
+}
+```
+
+**Solution: Provide a consumer using the context API**
+
+Instead of just render props, we can combine it with our context API pattern and enable a provider-consumer flow.
+
+## Pattern 12: Higher Order Components
+
+They take in a component and return the same component but in an enhanced way! For example, a component that adds some data props to the given component
+
+These are, by convention, prefixed with the `with` keyword. Helps us know that they are HOCs.
