@@ -176,7 +176,7 @@ test
   .then((value) => console.log('then 3: ', value))
   .catch((value) => console.log('catch 3: ', value))
 // Expected output:
-// then 1: 10 (after 1 second)
+// then 1: 100 (after 1 second)
 // then 2: undefined
 // catch 2: Some error (An error object)
 // then 3: 42
