@@ -113,7 +113,7 @@ test.catch((value) => console.log('catch', value))
 */
 
 /*
-// Test 3: asynchronous reject
+// Test 4: asynchronous reject
 const test = new Promisimple((resolve, reject) => {
   setTimeout(() => reject(10), 1000)
 });
@@ -124,7 +124,7 @@ test.catch((value) => console.log('catch', value))
 */
 
 /*
-// Test 3: chaining thens:
+// Test 5: chaining thens:
 const test = new Promisimple((resolve, reject) => {
   setTimeout(() => resolve(100), 1000)
 });
@@ -142,7 +142,7 @@ test
 */
 
 /*
-// Test 3: chaining catches:
+// Test 6: chaining catches:
 const test = new Promisimple((resolve, reject) => {
   setTimeout(() => reject(10), 1000)
 });
@@ -158,7 +158,7 @@ test
 */
 
 /*
-// Test 3: mixed chaining of thens & catches:
+// Test 7: mixed chaining of thens & catches:
 const test = new Promisimple((resolve, reject) => {
   setTimeout(() => resolve(100), 1000)
 });
