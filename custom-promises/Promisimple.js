@@ -45,11 +45,15 @@ class Promisimple {
   
   _queueThenable(thenable, type) {
     const newPromise = new Promisimple(() => {});
-    this._thenables.push({
-      type,
-      thenable,
-      newPromise,
-    });
+    if (this._state !== STATES.PENDING) {
+      this._executeThenable(thenable, newPromise)
+    } else {
+      this._thenables.push({
+        type,
+        thenable,
+        newPromise,
+      });
+    }
     return newPromise;
   }
 
