@@ -1,48 +1,19 @@
-Type Coercion:
-https://jsbin.com/pufeqil/edit?js
+# Javascript Basics Notes
 
-'new' Keyword:
-https://medium.freecodecamp.org/demystifying-javascripts-new-keyword-874df126184c
-
-`void` operator: 
-http://jsbin.com/sarida/13/edit?js,console
-
-Primitives | Primitive Wrapper Objects | Type Coercion: 
-http://jsbin.com/qodolep/40/edit?js,console
-
-JS `undefined` VS `null`:
-http://jsbin.com/fadakab/19/edit?js,console
-
-JS Falsy vs Truthy Values, '==' vs '===' Operators:
-http://jsbin.com/yorexux/8/edit?js,console
-
-JS `this` IDENTIFIER:
-http://jsbin.com/zojoyu/28/edit?js,console
-
-JS Operator Precedence and Associativity:
-http://jsbin.com/bamabob/179/edit?js,console
-
----
-
-Cookies / localStorage / sessionStorage:
-https://www.youtube.com/watch?v=AwicscsvGLg
-
-JS Engine Fundamentals:
-https://mathiasbynens.be/notes/shapes-ics
-
-How JS Timers work:
-https://johnresig.com/blog/how-javascript-timers-work/
-
-RequestAnimationFrame:
-https://dev.opera.com/articles/better-performance-with-requestanimationframe/
-
-Timers & RequestAnimationFrame Review:
-https://humanwhocodes.com/blog/2011/05/03/better-javascript-animations-with-requestanimationframe/
-
-Event Loop (Event Queue):
-https://www.youtube.com/watch?v=8aGhZQkoFbQ
-
-New in ES6: Micro Tasks queue
-https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/
-https://www.youtube.com/watch?v=Lum0R6Ng6R8
-https://www.youtube.com/watch?v=cCOL7MC4Pl0
+1. [Type coercion](https://jsbin.com/pufeqil/edit?js)
+2. [`new` keyword](https://medium.freecodecamp.org/demystifying-javascripts-new-keyword-874df126184c)
+3. [`void` operator](http://jsbin.com/sarida/13/edit?js,console)
+4. [Primitives | Primitive wrapper cbjects | Type coercion](http://jsbin.com/qodolep/40/edit?js,console)
+5. [JS `undefined` VS `null`](http://jsbin.com/fadakab/19/edit?js,console)
+6. [JS falsy vs truthy Values, `==` vs `===` Operators](http://jsbin.com/yorexux/8/edit?js,console)
+7. [JS `this` identifier](http://jsbin.com/zojoyu/28/edit?js,console)
+8. [JS operator precedence and associativity](http://jsbin.com/bamabob/179/edit?js,console)
+9. [Cookies / `localStorage` / `sessionStorage`](https://www.youtube.com/watch?v=AwicscsvGLg)
+10. [JS engine fundamentals](https://mathiasbynens.be/notes/shapes-ics)
+11. [How JS timers work](https://johnresig.com/blog/how-javascript-timers-work/)
+12. [`RequestAnimationFrame`](https://dev.opera.com/articles/better-performance-with-requestanimationframe/)
+13. [Timers & RequestAnimationFrame review](https://humanwhocodes.com/blog/2011/05/03/better-javascript-animations-with-requestanimationframe/)
+14. [Event loop (& Job queue)](https://www.youtube.com/watch?v=8aGhZQkoFbQ)
+15. [New in ES6: Microtasks queue](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/)
+16. [JS microtask quiz](https://www.youtube.com/watch?v=Lum0R6Ng6R8)
+17. [Jake Archibald: In the loop](https://www.youtube.com/watch?v=cCOL7MC4Pl0)
