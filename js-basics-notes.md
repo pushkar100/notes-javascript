@@ -2,7 +2,7 @@
 
 1. [Type coercion](https://jsbin.com/pufeqil/edit?js)
 2. [`new` keyword](https://medium.freecodecamp.org/demystifying-javascripts-new-keyword-874df126184c)
-  * [How `new` works](https://www.tutorialsteacher.com/javascript/new-keyword-in-javascript)
+    * [How `new` works](https://www.tutorialsteacher.com/javascript/new-keyword-in-javascript)
 3. [`void` operator](http://jsbin.com/sarida/13/edit?js,console)
 4. [Primitives | Primitive wrapper cbjects | Type coercion](http://jsbin.com/qodolep/40/edit?js,console)
 5. [JS `undefined` VS `null`](http://jsbin.com/fadakab/19/edit?js,console)
