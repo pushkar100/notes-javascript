@@ -2,6 +2,37 @@
 
 [Source of this tutorial](https://www.udemy.com/es6-es7-and-es8-its-time-to-update-your-javascript)
 
+- [ES6, ES7, and ES8 Notes](#es6--es7--and-es8-notes)
+  * [`let` and `const`](#-let--and--const-)
+      - [`var` based variables are:](#-var--based-variables-are-)
+      - [`let` is a block-level (`{}`) declaration that:](#-let--is-a-block-level--------declaration-that-)
+      - [`const` is also block-level (`{}`) declaration that:](#-const--is-also-block-level--------declaration-that-)
+  * [Template Literals](#template-literals)
+  * [Tagged Templates](#tagged-templates)
+  * [Rest operator and Default parameters](#rest-operator-and-default-parameters)
+  * [Spread Syntax](#spread-syntax)
+  * [Arrow Functions](#arrow-functions)
+  * [Object Literals & Destructuring](#object-literals---destructuring)
+    + [Object destructuring](#object-destructuring)
+    + [Array Destructuring](#array-destructuring)
+  * [Classes](#classes)
+    + [Setters & Getters](#setters---getters)
+    + [Subclasses & Prototype Based Inheritance (`extends` & `super`)](#subclasses---prototype-based-inheritance---extends-----super--)
+  * [Arrays](#arrays)
+    + [`for...of` loop](#-forof--loop)
+    + [`Array.from()` method](#-arrayfrom----method)
+    + [`Array.of()` & `Array.prototype.fill()` methods](#-arrayof-------arrayprototypefill----methods)
+    + [`Array.prototype.find()` & `Array.prototype.findIndex()` methods](#-arrayprototypefind-------arrayprototypefindindex----methods)
+  * [`Map`, `Set`, `WeakMap`, `WeakSet`, & How JS Stores Stuff](#-map----set----weakmap----weakset-----how-js-stores-stuff)
+  * [Symbols (New Data Type)](#symbols--new-data-type-)
+  * [Promises](#promises)
+    + [Promise Chaining](#promise-chaining)
+  * [Async & Await (ES8)](#async---await--es8-)
+  * [ES8 Easy Wins](#es8-easy-wins)
+  * [ES7 Easy Wins (Only a couple of additions to ES7)](#es7-easy-wins--only-a-couple-of-additions-to-es7-)
+  * [Proxies](#proxies)
+  * [Generators,  Iterators, Iterables (& revisiting `for..of`)](#generators---iterators--iterables----revisiting--forof--)
+
 Additions to each ECMAScript standard:
 
 - **ES6**: 
