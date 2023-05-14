@@ -1,5 +1,16 @@
 # Organizing JavaScript Functionality (Notes - Browser Part Only)
 
+- [Organizing JavaScript Functionality (Notes - Browser Part Only)](#organizing-javascript-functionality--notes---browser-part-only-)
+  * [Nested Scopes](#nested-scopes)
+  * [Modules](#modules)
+  * [Callbacks](#callbacks)
+  * [Refactoring Code Post Modularization](#refactoring-code-post-modularization)
+  * [`$(document).ready`](#---document-ready-)
+  * [Event Emitters](#event-emitters)
+  * [Factory vs Singleton:](#factory-vs-singleton-)
+- [Server Side JavaScript (Not Covered)](#server-side-javascript--not-covered-)
+  * [Middle End Architecture](#middle-end-architecture)
+
 **Notes from the workshop video series by Kyle Simpson**
 
 > No amount of learning the theory of JavaScript will substitute for actually practicing the implementation of it. Even before you adopt a framework, learning how to organize the different bits of JavaScript (modularizing, decoupling, etc) will make a huge positive impact on the quality of your code. Once you've mastered those techniques, turn your attention to building code that you can share between the client (browser) and the server (Node). That's where the most exciting exercises of your new-found JS knowledge will shine!
