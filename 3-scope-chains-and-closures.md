@@ -1,5 +1,11 @@
 # Scope Chains and Closures:
 
+- [Scope Chains and Closures:](#scope-chains-and-closures-)
+  * [Scope Chains:](#scope-chains-)
+  * [Global Scope & Shadowing:](#global-scope---shadowing-)
+  * [Closures:](#closures-)
+  * [Garbage Collection:](#garbage-collection-)
+
 1. **Lexical Scoping**: Refers to the scope of the functions (within functions)
 2. **Block Scoping**: Refers to the scope of the curly brackets `{}`, like in an `if` block. (New scope, a feature of ES6)
 
