@@ -1,5 +1,29 @@
 # Functional Lite JS v2
 
+- [Functional Lite JS v2](#functional-lite-js-v2)
+  * [Kyle Simpson](#kyle-simpson)
+    + [Imperative Programming](#imperative-programming)
+    + [Declarative Programming](#declarative-programming)
+    + [Why FP?](#why-fp-)
+    + [Procedure](#procedure)
+    + [Pure Functions](#pure-functions)
+    + [Why do we NOT want "side effects"?](#why-do-we-not-want--side-effects--)
+    + [Advantages of Pure functions](#advantages-of-pure-functions)
+    + [Common side-effects](#common-side-effects)
+    + [Purifying a function](#purifying-a-function)
+      - [Technique 1 (Best)](#technique-1--best-)
+      - [Technique 2 (Only if Technique 1 is not possible)](#technique-2--only-if-technique-1-is-not-possible-)
+      - [Tips while purifying a function](#tips-while-purifying-a-function)
+    + [Understanding purity in Javascript](#understanding-purity-in-javascript)
+    + [Point-free style](#point-free-style)
+      - [Example of using a utility function to create point-free style code](#example-of-using-a-utility-function-to-create-point-free-style-code)
+    + [Composition & Pipes](#composition---pipes)
+      - [Why use compose & pipe?](#why-use-compose---pipe-)
+    + [Mutability](#mutability)
+    + [Closure](#closure)
+      - [General to Specialized application using Closures](#general-to-specialized-application-using-closures)
+
+
 ## Kyle Simpson
 
 ### Imperative Programming
