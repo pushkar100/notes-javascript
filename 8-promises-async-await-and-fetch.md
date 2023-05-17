@@ -1,4 +1,4 @@
-# Deep dive into promises and async await
+# Promises, async await, and fetch
 
 - [Deep dive into promises and async await](#deep-dive-into-promises-and-async-await)
   * [Problems with callbacks](#problems-with-callbacks)
