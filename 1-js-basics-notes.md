@@ -14,7 +14,7 @@
 11. [JS engine fundamentals](https://mathiasbynens.be/notes/shapes-ics)
 12. [How JS timers work](https://johnresig.com/blog/how-javascript-timers-work/)
 13. [`RequestAnimationFrame`](https://dev.opera.com/articles/better-performance-with-requestanimationframe/)
-14. [Timers & RequestAnimationFrame review](https://humanwhocodes.com/blog/2011/05/03/better-javascript-animations-with-requestanimationframe/)
+14. [Timers & RequestAnimationFrame review](https://humanwhocodes.com/blog/2011/05/03/better-javascript-animations-with-requestanimationframe/), [RequestAnimationFrame](https://www.youtube.com/watch?v=tS6oP1NveoI)
 15. [Event loop (& Job queue)](https://www.youtube.com/watch?v=8aGhZQkoFbQ)
 16. [New in ES6: Microtasks queue](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/)
 17. [JS microtask quiz](https://www.youtube.com/watch?v=Lum0R6Ng6R8)
