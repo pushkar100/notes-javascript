@@ -23,4 +23,5 @@
 20. [Service workers](https://www.youtube.com/watch?v=jVfXiv03y5c), [More on service workers](https://www.youtube.com/watch?v=Yq32eUYg6Lc)
 21. [Mutation Observer](https://www.youtube.com/watch?v=Mi4EF9K87aM)
 22. [Intersection Observer](https://www.youtube.com/watch?v=2IbRtjez6ag)
-23. [Debounce & throttle](https://www.youtube.com/watch?v=cjIswDCKgu0)
+23. Server push and Web notifications: [Video 1](https://www.youtube.com/watch?v=ggUY0Q4f5ok), [Video 2](https://www.youtube.com/watch?v=85LAGSFgUhA), [Video 3](https://www.youtube.com/watch?v=xzOjb3BPEFw)
+24. [Debounce & throttle](https://www.youtube.com/watch?v=cjIswDCKgu0)
