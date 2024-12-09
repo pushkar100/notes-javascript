@@ -23,3 +23,4 @@
 20. [Service workers](https://www.youtube.com/watch?v=jVfXiv03y5c), [More on service workers](https://www.youtube.com/watch?v=Yq32eUYg6Lc)
 21. [Mutation Observer](https://www.youtube.com/watch?v=Mi4EF9K87aM)
 22. [Intersection Observer](https://www.youtube.com/watch?v=2IbRtjez6ag)
+23. [Debounce & throttle](https://www.youtube.com/watch?v=cjIswDCKgu0)
