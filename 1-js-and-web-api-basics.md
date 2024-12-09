@@ -20,6 +20,6 @@
 17. [JS microtask quiz](https://www.youtube.com/watch?v=Lum0R6Ng6R8)
 18. [Jake Archibald: In the loop](https://www.youtube.com/watch?v=cCOL7MC4Pl0)
 19. [Web workers](https://www.youtube.com/watch?v=JMKLXGwltGc) [More on web workers](https://www.youtube.com/watch?v=-JE8P2TiJEg)
-20. [Service workers](https://www.youtube.com/watch?v=jVfXiv03y5c) [More on service workers]([https://www.youtube.com/watch?v=jVfXiv03y5c](https://www.youtube.com/watch?v=Yq32eUYg6Lc))
+20. [Service workers](https://www.youtube.com/watch?v=jVfXiv03y5c), [More on service workers]([https://www.youtube.com/watch?v=jVfXiv03y5c](https://www.youtube.com/watch?v=Yq32eUYg6Lc)
 21. [Mutation Observer](https://www.youtube.com/watch?v=Mi4EF9K87aM)
 22. [Intersection Observer](https://www.youtube.com/watch?v=2IbRtjez6ag)
