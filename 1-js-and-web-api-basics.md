@@ -1,4 +1,4 @@
-# Javascript Basics Notes
+# Javascript Basics & Popular Web API's Notes
 
 1. [Type coercion](https://jsbin.com/pufeqil/edit?js)
 2. [`new` keyword](https://medium.freecodecamp.org/demystifying-javascripts-new-keyword-874df126184c)
