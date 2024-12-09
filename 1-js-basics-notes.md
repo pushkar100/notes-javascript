@@ -10,7 +10,7 @@
 7. [JS `this` identifier](http://jsbin.com/zojoyu/28/edit?js,console)
 8. [JS operator precedence and associativity](http://jsbin.com/bamabob/179/edit?js,console)
 9. [Cookies / `localStorage` / `sessionStorage`](https://www.youtube.com/watch?v=AwicscsvGLg)
-10. [IndexedDB](https://www.youtube.com/watch?v=-AzFQN9Vp7k&t=1s)
+10. [IndexedDB](https://www.youtube.com/watch?v=-AzFQN9Vp7k&t=1s), [More on IndexedDB](https://www.youtube.com/watch?v=YNVD2NaFdwE)
 11. [JS engine fundamentals](https://mathiasbynens.be/notes/shapes-ics)
 12. [How JS timers work](https://johnresig.com/blog/how-javascript-timers-work/)
 13. [`RequestAnimationFrame`](https://dev.opera.com/articles/better-performance-with-requestanimationframe/)
