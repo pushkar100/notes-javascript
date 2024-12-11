@@ -299,7 +299,7 @@ Pros:
 * It is useful for maintaining a timeout on a promise. Ex: set a time limit on n/w request.
 
 Cons:
-* Nothing really. However, if you are looking to fetch a resource most quickly available from multiple endpoints, `Promise.any()` is the best choice
+* Nothing really. However, if you are looking to fetch a resource most quickly available from multiple endpoints, `Promise.any()` is the best choice: This method is useful for returning the first promise that fulfills. It short-circuits after a promise fulfills, so it does not wait for the other promises to complete once it finds one.
 
 ```js
 const resolvePromiseAfterDelay = (value, delay) => {
