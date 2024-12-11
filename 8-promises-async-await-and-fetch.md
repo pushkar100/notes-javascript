@@ -105,7 +105,7 @@ const computeSqrt = (num) => new Promise((resolve, reject) => {
 
 If we know that a promise can be settled immediately, we can use *static* methods, **`Promise.resolve()`** or **`Promise.reject()`** to create a settled promise. 
 
-**Note**: This is still asynchronous (i.e goes to the micro-task queue)
+**Note**: This is still asynchronous (i.e goes to the micro-task queue). When does something go to the microtask queue? It goes when the promise has resolved. Until then the job i. then callback is not added to the queue.
 
 ```js
 const computeSqrt = (num) => {
