@@ -211,7 +211,7 @@ badComputeSqrt(16).catch(err => console.log(err)); // Error
 
 - Both `then()` and `catch() `return a promise, calls to these functions may be ***chained*** to apply a series of filtering and transformations
 
-(a) If the promise resolves, all the `then()` callbacks in the chain up to the first catch are skipped and the `catch()` is invoked
+(a) If the promise rejects, all the `then()` callbacks in the chain up to the first catch are skipped and the `catch()` is invoked
 (b) If a callback returns something, that return value is wrapped automatically inside a *resolved* promise. This applies to both `then()` and `catch()` callbacks and *is what enables chaining*
 (c) If a callback throws an error, the error object is wrapped automatically inside a *rejected* promise.
 
