@@ -10,7 +10,7 @@
   * [What does a promise contain?](#what-does-a-promise-contain-)
   * [Handling a promise](#handling-a-promise)
   * [Chaining promises](#chaining-promises)
-  * [Promise.race](#promiserace)
+  * [Promise.race and Promise.any](#promiserace-and-promiseany)
   * [Promise.all](#promiseall)
   * [Async await](#async-await)
   * [Fetch API in detail](#fetch-api-in-detail)
@@ -291,15 +291,17 @@ computeSqrt(16)
 // then2
 ```
 
-## Promise.race
+## Promise.race and Promise.any
 
 The `race()` static method of `Promise` takes an array of promises and returns the ***first*** one to resolve or reject.
+* `Promise.race()` settles with the first promise to finish (win or lose)
+* `Promise.any()` waits for the first promise to succeed (ignoring failures)
 
 Pros:
 * It is useful for maintaining a timeout on a promise. Ex: set a time limit on n/w request.
 
 Cons:
-* Nothing really. However, if you are looking to fetch a resource most quickly available from multiple endpoints, `Promise.any()` is the best choice: This method is useful for returning the first promise that fulfills. It short-circuits after a promise fulfills, so it does not wait for the other promises to complete once it finds one.
+* Nothing really. However, if you are looking to fetch a resource most quickly available from multiple endpoints, `Promise.any()` is the best choice: This method is useful for returning the first promise that fulfills successfully. It short-circuits after a promise fulfills, so it does not wait for the other promises to complete once it finds one.
 
 ```js
 const resolvePromiseAfterDelay = (value, delay) => {
@@ -349,6 +351,50 @@ Promise.race([
 
 // Logs:
 // timeout
+```
+
+```js
+const createPromise = (success, secondsDelay) => 
+  new Promise((resolve, reject) => 
+    setTimeout(() =>
+      success 
+        ? resolve(`resolved ${secondsDelay}`) 
+        : reject(`rejected ${secondsDelay}`)
+      , secondsDelay * 1000
+    ) 
+  )
+
+Promise.race([
+  createPromise(true, 1),
+  createPromise(true, 2),
+  createPromise(true, 3)
+])
+  .then(console.log) // 'resolved 1'
+  .catch(console.log) 
+
+Promise.race([
+  createPromise(false, 1),
+  createPromise(true, 2),
+  createPromise(true, 3)
+])
+  .then(console.log) 
+  .catch(console.log) // 'rejected 1'
+
+Promise.any([
+  createPromise(true, 1),
+  createPromise(true, 2),
+  createPromise(true, 3)
+])
+  .then(console.log) // 'resolved 1'
+  .catch(console.log) 
+
+Promise.any([
+  createPromise(false, 1),
+  createPromise(true, 2),
+  createPromise(true, 3)
+])
+  .then(console.log) // 'resolved 2'
+  .catch(console.log)
 ```
 
 ## Promise.all
