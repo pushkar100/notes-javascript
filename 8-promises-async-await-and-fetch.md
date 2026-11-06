@@ -1391,9 +1391,7 @@ After the `fetch()` request is sent, if you want to cancel halfway, you need to 
 let controller = new AbortController();
 let signal = controller.signal;
 
-fetch(url, {
-  signal: controller.signal
-});
+fetch(url, { signal });
 
 signal.addEventListener('abort',
   () => console.log('abort!')
@@ -1409,5 +1407,140 @@ In the above example:
 * The `signal` property of the configuration object must specify that it receives the signal `Controller.signal` sent by the `AbortController` instance. 
 * The `Controller.abort` method is used to signal the cancellation. At this time, the `abort` event will be triggered. 
 * This event can be monitored, or you can determine whether the cancel signal has been sent through the `Controller.signal.aborted` property.
+
+Example 2: 
+```js
+// 1. Create an instance of AbortController
+const controller = new AbortController();
+const signal = controller.signal;
+
+// 2. Set a timeout to trigger the abort after 2 seconds
+const timeoutId = setTimeout(() => {
+  controller.abort(); 
+  console.log("⏱️ Request timed out and was cancelled!");
+}, 2000);
+
+async function downloadData() {
+  try {
+    // 3. Pass the signal option into the fetch call
+    const response = await fetch("https://typicode.com", { signal });
+    const data = await response.json();
+    
+    // Clear the timeout if the request finishes successfully before 2 seconds
+    clearTimeout(timeoutId);
+    console.log("🎉 Data loaded successfully!", data.length);
+    
+  } catch (error) {
+    // 4. Handle the specific abort error
+    if (error.name === "AbortError") {
+      console.log("❌ Fetch caught the cancellation safely.");
+    } else {
+      console.error("⚠️ A different network error occurred:", error);
+    }
+  }
+}
+
+downloadData();
+```
+
+Example 3: Instant Manual Cancellation
+```js
+const controller = new AbortController();
+
+async function makeRequest() {
+  try {
+    // Pass the signal to fetch
+    await fetch("https://httpbin.org", { signal: controller.signal });
+    console.log("Success!");
+  } catch (error) {
+    if (error.name === "AbortError") {
+      console.log("❌ The request was successfully cancelled!");
+    }
+  }
+}
+
+// Start the request
+makeRequest();
+
+// Cancel it immediately!
+controller.abort(); 
+
+// Output Log:
+// ❌ The request was successfully cancelled!
+```
+
+Example 4: The Modern, One-Line Timeout (`AbortSignal.timeout`)
+* If your only goal is to stop a request after a certain time, modern JavaScript lets you skip creating `new AbortController()` completely. You can use the built-in `AbortSignal.timeout()` shortcut directly inside your fetch.
+```js
+async function fetchWithTimeout() {
+  try {
+    // Automatically cancels if the server takes longer than 1500 milliseconds (1.5 seconds)
+    const response = await fetch("https://httpbin.org", { 
+      signal: AbortSignal.timeout(1500) 
+    });
+    
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    if (error.name === "TimeoutError") {
+      console.log("⏱️ Request stopped because it took too long!");
+    } else {
+      console.log("Error:", error.message);
+    }
+  }
+}
+
+fetchWithTimeout();
+
+// Output Log:
+// ⏱️ Request stopped because it took too long!
+```
+
+Example 5: Using an `AbortController` inside a React useEffect hook is the standard best practice for data fetching. It prevents race conditions (when an old, slow request finishes after a newer request) and avoids updates on unmounted components if the user navigates away before the download finishes
+```jsx
+import { useState, useEffect } from 'react';
+
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // 1. Create a new controller instance inside the effect
+    const controller = new AbortController();
+    const { signal } = controller;
+
+    async function startFetching() {
+      setLoading(true);
+      try {
+        // 2. Pass the signal to the fetch request
+        const response = await fetch(`https://typicode.com{userId}`, { signal });
+        const data = await response.json();
+        
+        // 3. Only update state if the request wasn't cancelled
+        setUser(data);
+        setLoading(false);
+      } catch (error) {
+        // 4. Ignore AbortError, handle all other real errors
+        if (error.name === 'AbortError') {
+          console.log('Fetch successfully aborted for userId:', userId);
+        } else {
+          console.error('Fetch error:', error);
+          setLoading(false);
+        }
+      }
+    }
+
+    startFetching();
+
+    // 5. The Cleanup Function: React runs this whenever userId changes, or when the component unmounts
+    return () => {
+      controller.abort();
+    };
+  }, [userId]); // The effect re-runs every time userId changes
+
+  if (loading) return <p>Loading user data...</p>;
+  return <div><h1>{user?.name}</h1><p>{user?.email}</p></div>;
+}
+```
 
 [Article link](https://betterprogramming.pub/deep-insights-into-javascripts-fetch-api-e8e8203c0965)
