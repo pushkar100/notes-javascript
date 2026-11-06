@@ -11,7 +11,7 @@
   * [Handling a promise](#handling-a-promise)
   * [Chaining promises](#chaining-promises)
   * [Promise.race and Promise.any](#promiserace-and-promiseany)
-  * [Promise.all](#promiseall)
+  * [Promise.all and Promise.allSettled](#promiseall-and-promiseallsettled)
   * [Async await](#async-await)
   * [Fetch API in detail](#fetch-api-in-detail)
     + [Simple GET request using fetch](#simple-get-request-using-fetch)
@@ -297,10 +297,10 @@ The `race()` static method of `Promise` takes an array of promises and returns t
 * `Promise.race()` settles with the first promise to finish (win or lose)
 * `Promise.any()` waits for the first promise to succeed (ignoring failures)
 
-Pros:
+Pros of `Promise.race()`:
 * It is useful for maintaining a timeout on a promise. Ex: set a time limit on n/w request.
 
-Cons:
+Cons of `Promise.race()`:
 * Nothing really. However, if you are looking to fetch a resource most quickly available from multiple endpoints, `Promise.any()` is the best choice: This method is useful for returning the first promise that fulfills successfully. It short-circuits after a promise fulfills, so it does not wait for the other promises to complete once it finds one.
 
 ```js
@@ -397,13 +397,16 @@ Promise.any([
   .catch(console.log)
 ```
 
-## Promise.all
+## Promise.all and Promise.allSettled
 The `all()` static method of promise takes an array of promises and passes an array of resolved results to the `then()` function when all promises resolve. If any one of the given promises is rejected, then the `then()` function is *not* called; the `catch()` function is used instead.
 
-Pros
+* `Promise.all()` rejects immediately if any promise fails, whereas
+* `Promise.allSettled()` waits for all promises to finish regardless of whether they succeed or fail
+
+Pros of `Promise.all()`:
 * Non-blocking way to fetch multiple requests *but process the outcomes in order*!
 
-Cons:
+Cons of `Promise.all()`:
 * If one promise rejects then the whole `Promise.all()` rejects. If you want to work with partial data, use `Promise.allSettled()`
 * One caveat with `all()` is that if computations were to take an indefinitely long amount of time, then it might lead to ***starvation***. To avoid this concern, we can use a *timeout promise*.
 
