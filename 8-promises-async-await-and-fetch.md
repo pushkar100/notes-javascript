@@ -12,6 +12,7 @@
   * [Chaining promises](#chaining-promises)
   * [Promise.race and Promise.any](#promiserace-and-promiseany)
   * [Promise.all and Promise.allSettled](#promiseall-and-promiseallsettled)
+  * [Promise.finally](#promisefinally)
   * [Async await](#async-await)
   * [Fetch API in detail](#fetch-api-in-detail)
     + [Simple GET request using fetch](#simple-get-request-using-fetch)
@@ -70,6 +71,12 @@ A promise:
 * Whenever an asynchronous function needs to complete an operation, the promise will be in pending state. When the operation ends, the promise is set to resolved or rejected
 * If resolved, the promise makes available the resolved value. Ex: data from a fetch request
 * If rejected, the promise makes available the rejected reason. Ex: error object for a failing network request
+
+
+A JavaScript Promise always exists in one of three primary states:
+1. `pending`: The initial state. The asynchronous operation is still working
+2. `fulfilled` or `resolved`: The operation completed successfully. A result value is available
+3. `rejected`: The operation failed. An error or reason for failure is provided
 
 **Note:**
 1. Once the promise has settled, it cannot go back to a pending state
@@ -497,6 +504,115 @@ Promise.allSettled([
 ])
   .then(console.log) // [ { status: 'fulfilled', value: 'resolved 1' }, { status: 'rejected', reason: 'rejected 2' }, { status: 'fulfilled', value: 'resolved 3' } ]
   .catch(console.log) 
+```
+
+## Promise.finally
+
+`Promise.prototype.finally()` always executes after a promise settles, regardless of whether it was fulfilled or rejected. It was officially introduced in **2018** as part of the **ECMAScript 2018 (ES9) specification** *(Later, not when promises were first introduced)*.
+
+* Think of `.finally()` as the cleanup crew. It allows you to run a piece of logic after an asynchronous operation concludes, ensuring you *don't have to duplicate that logic inside both both `.then()` and `.catch()`*
+* Crucially, the callback passed to `.finally()` *receives no arguments*, because it is meant to perform generic cleanup tasks that do not depend on the outcome of the promise
+
+```js
+// Hiding a Loading Spinner (Frontend)
+
+let isLoading = true;
+
+fetchData()
+  .then(data => renderData(data))
+  .catch(error => showErrorPage(error))
+  .finally(() => {
+    isLoading = false; // Always hides the spinner whether the fetch succeeded or failed
+    hideLoadingSpinner(); 
+  });
+```
+
+```js
+// Closing a Database Connection (Backend)
+
+db.connect()
+  .then(connection => connection.query('SELECT * FROM users'))
+  .catch(err => logDatabaseError(err))
+  .finally(() => {
+    db.closeConnection(); // Guarantees the pool connection is freed up
+  });
+```
+
+Pros:
+1. Prevents Code Duplication: Eliminates the need to repeat cleanup routines inside both `.then()` and `.catch()`
+2. Guaranteed Execution: Runs safely whether the outcome is a success or an error
+3. Cleaner Async/Await Syntax: Maps beautifully to standard `try...catch...finally` synchronous code blocks
+
+Cons:
+1. No Arguments: You cannot access the resolved value or the rejection error inside the callback
+2. Transparent Side Effects: It usually passes the original value/error down the chain, but if your .finally block explicitly throws an error or returns a rejected promise, it will hijack the chain and change the resolution to a rejection
+
+By default, `.finally()` is **transparent**. It lets the original resolved value or rejected error pass right through it to the next handler in the promise chain
+```js
+/ --- Case A: Resolved value passes through ---
+Promise.resolve("🚀 Success Data")
+  .finally(() => {
+    console.log("Cleanup complete (A)"); // Runs first
+  })
+  .then((val) => {
+    console.log(`Received: ${val}`); // Output: "Received: 🚀 Success Data"
+  });
+
+// --- Case B: Rejected error passes through ---
+Promise.reject("❌ Critical Error")
+  .finally(() => {
+    console.log("Cleanup complete (B)"); // Runs first
+  })
+  .catch((err) => {
+    console.log(`Caught: ${err}`); // Output: "Caught: ❌ Critical Error"
+  });
+```
+
+**Beware!**: If you explicitly throw an error or return a rejected promise inside the `.finally()` callback, it will _hijack the chain_. The original outcome is discarded, and the promise transitions into a rejected state with the new error
+```js
+// --- Case C: Throwing an error overrides a successful promise ---
+Promise.resolve("🚀 Success Data")
+  .finally(() => {
+    console.log("Cleaning up...");
+    throw new Error("💥 Cleanup crashed!"); // Hijacks the chain!
+  })
+  .then((val) => {
+    console.log("This will NEVER run");
+  })
+  .catch((err) => {
+    console.error(`Caught: ${err.message}`); // Output: "Caught: 💥 Cleanup crashed!"
+  });
+
+// --- Case D: Returning a rejected promise overrides an original error ---
+Promise.reject("❌ Original Error")
+  .finally(() => {
+    console.log("Cleaning up...");
+    return Promise.reject("💥 Critical Cleanup Failure"); // Overrides the original error!
+  })
+  .catch((err) => {
+    console.error(`Caught: ${err}`); // Output: "Caught: 💥 Critical Cleanup Failure"
+  });
+```
+
+**However**: Returning a _normal value_ or a _resolved promise_ inside `.finally()` does **not** hijack the chain. The return value is completely **ignored**, and the original value (or error) passes right through
+```js
+// --- Case 1: Returning a normal value from a resolved promise ---
+Promise.resolve("🚀 Original Success Data")
+  .finally(() => {
+    return "This string will be ignored!"; 
+  })
+  .then((val) => {
+    console.log(val); // Output: "🚀 Original Success Data" (Not the string!)
+  });
+
+// --- Case 2: Returning a resolved promise from a rejected promise ---
+Promise.reject("❌ Original Error")
+  .finally(() => {
+    return Promise.resolve("Safe cleanup outcome"); 
+  })
+  .catch((err) => {
+    console.log(err); // Output: "❌ Original Error" (The rejection is preserved)
+  });
 ```
 
 ## Async await
