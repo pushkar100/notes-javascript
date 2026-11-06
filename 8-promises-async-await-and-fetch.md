@@ -648,8 +648,7 @@ The answer is **async functions**. These return promises that wrap the return va
 *Internally, these functions work just like promises do because they essentially are just that, promises under the hood!*
 
 **Defining an async function:**
-* Mark the promise-returning asynchronous function
-with the async keyword.
+* Mark the promise-returning asynchronous function with the `async` keyword
 
 **Invoking an async function synchronously:**
 * Place the `await` keyword before it. Usually used with promises or an async function. 
@@ -697,9 +696,61 @@ console.log(addAsync(2, 3));
 // Promise {<pending>}
 ```
 
+**Return type of an async function**: An async function always returns a Promise!
+* If you explicitly return a value (like a string or a number) from inside an async function, JavaScript automatically wraps that value in a **fulfilled Promise**
+* If you return nothing, it returns a Promise fulfilled with `undefined`
+* If an error is thrown inside the function, it returns a **rejected Promise**
+
+```js
+// A standard function
+function regularFunction() {
+  return "Hello";
+}
+
+// An async function
+async function asyncFunction() {
+  return "Hello"; 
+}
+
+console.log(regularFunction()); // Outputs: "Hello"
+console.log(asyncFunction());   // Outputs: Promise { <fulfilled>: "Hello" }
+
+// To get the data out of the promise, you must resolve it:
+asyncFunction().then(data => console.log(data)); // Outputs: "Hello"
+```
+
+**Deep dive on `await`**: 
+* The await keyword can _only_ be used inside an `async` function
+* When you place `await` in front of a Promise, it ***pauses the execution of the async function until that Promise settles (either fulfills or rejects)***
+  * If the promise fulfills, await extracts the raw result value so you can assign it directly to a variable
+  * While the async function is paused, _the rest of your browser or server application keeps running normally (it does not freeze the entire program)_
+ 
+```js
+// A mock function that simulates a network request taking 2 seconds
+function fetchUserData() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve({ id: 1, name: "Alice" }), 2000);
+  });
+}
+
+// Using async/await to handle the response
+async function displayUser() {
+  console.log("Fetching user...");
+  
+  // The code pauses here for 2 seconds until the promise is fulfilled
+  const user = await fetchUserData(); 
+  
+  // This line only runs AFTER the promise above settles
+  console.log(`User found: ${user.name}`); 
+}
+
+displayUser();
+```
+
 **Error handling in async functions**
 
 Instead of having a `catch` block as with promises, we can use the regular **`try-catch`** block! 
+* Because async/await makes code look synchronous, you can use standard JavaScript `try...catch` blocks to handle errors instead of chaining `.catch()` methods
 
 If we do *not* handle the error, we get a rejected promise with that error. This needs to be handled in a `catch()` block at some point, else we will see an "unhandled promise" error.
 
@@ -721,8 +772,143 @@ const checkTwoPlusThree = async () => {
 }
 ```
 
-> Then then-catch syntax may be more suitable when creating functional style code and the async-await more suitable when writing imperative style code. 
+> Then then-catch syntax may be more suitable when creating **functional** style code and the async-await more suitable when writing **imperative** style code. 
 > At the same time, use caution: async-await may be error prone if the function that we are waiting for completion modifies a shared state; such state change may make the suspended code vulnerable
+
+```js
+async function getData() {
+  try {
+    const response = await fetch("https://example.com");
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Something went wrong:", error);
+  }
+}
+```
+
+**How try, catch, and finally Work with Async/Await**
+* `try`: Wraps the code that might fail (like an awaited network request)
+* `catch`: Runs only if an awaited promise rejects or a standard error is thrown inside the try block. It intercepts the error
+* `finally`: Runs always, regardless of whether the code succeeded (in try) or failed (in catch)
+
+```js
+// Simulating an API call that randomly succeeds or fails
+function fetchData() {
+  return new Promise((resolve, reject) => {
+    const success = Math.random() > 0.5;
+    setTimeout(() => {
+      success ? resolve("Data loaded! 🎉") : reject(new Error("Network failed ❌"));
+    }, 1000);
+  });
+}
+
+async function handleRequest() {
+  console.log("1. Starting request...");
+  
+  try {
+    // Execution pauses here until the promise settles
+    const result = await fetchData();
+    console.log("2. Success path:", result);
+  } catch (error) {
+    // If the promise rejects, execution jumps straight here
+    console.log("2. Error path:", error.message);
+  } finally {
+    // This always runs after the try or catch blocks finish
+    console.log("3. Cleanup: Closing connection/stopping loading spinner.");
+  }
+}
+
+handleRequest();
+```
+
+**How should synchronous methods invoke async functions?**: A synchronous method cannot pause its execution to wait for a Promise. Because an async function always returns a Promise immediately, the synchronous code will fire the async task and instantly move on to the next line of code
+1. Pattern 1: The Promise Chain (`.then()` and `.catch()`) - The cleanest, most explicit way to call an async function from a synchronous environment is to treat the returned value exactly like what it is, a standard JavaScript Promise
+2. Pattern 2: "Fire-and-Forget" (With Safe Error Handling) - Sometimes, you want to trigger a background task (like saving logs to a file or firing off analytics tracking) and you genuinely do not care about the result inside your synchronous workflow. When doing this, you must still catch errors to prevent your application from crashing due to an `UnhandledPromiseRejection`
+3. Pattern 3: The Immediately Invoked Async Function Expression (IIFE) - If you are inside a synchronous function or a top-level script (where top-level `await` might not be supported by your environment), you can wrap the code inside an anonymous async function that executes immediately. This bridges the sync-to-async gap locally
+
+```js
+// Pattern 1: The Promise Chain (`.then()` and `.catch()`)
+
+// The Async Function
+async function fetchUserRole(userId) {
+  // Simulating an API call
+  return userId === 1 ? "Admin" : "User";
+}
+
+// The Synchronous Method
+function processUserLogin() {
+  console.log("1. Starting sync process...");
+
+  // Invoke the async function synchronously
+  fetchUserRole(1)
+    .then((role) => {
+      // This code runs LATER, when the async task completes successfully
+      console.log(`3. Async result resolved: User is an ${role}`);
+    })
+    .catch((error) => {
+      // Always catch errors so they don't become unhandled rejections
+      console.error("Async task failed:", error);
+    });
+
+  console.log("2. Sync process finished executing its lines.");
+}
+
+processUserLogin();
+
+// Log Output Order:
+// 1. Starting sync process...
+// 2. Sync process finished executing its lines.
+// 3. Async result resolved: User is an Admin
+```
+
+```js
+// Pattern 2: "Fire-and-Forget" (With Safe Error Handling)
+
+async function trackAnalyticsEvent(event) {
+  // Simulating sending data to a server
+  if (!event) throw new Error("Invalid Event");
+  return "Tracked";
+}
+
+// Synchronous Method
+function handleClick() {
+  console.log("Button clicked!");
+
+  // Fire-and-forget call
+  trackAnalyticsEvent("button_click")
+    .catch(err => console.error("Background tracking failed:", err));
+
+  // This runs immediately without waiting for trackAnalyticsEvent to finish
+  updateUIChanges(); 
+}
+```
+
+```js
+// Pattern 3: The Immediately Invoked Async Function Expression (IIFE)
+// NOTE: We did not have to invoke the async function explicitly!
+
+// Synchronous initialization function
+function initializeApplication() {
+  console.log("Initializing...");
+
+  // Creating an async wrapper that runs right away
+  (async () => {
+    try {
+      const config = await fetchConfigFromServer();
+      console.log("Configuration loaded:", config);
+    } catch (error) {
+      console.error("Initialization failed:", error);
+    }
+  })();
+
+  console.log("Sync setup complete (Async loading continues in background...)");
+}
+
+Initializing...
+Sync setup complete (Async loading continues in background...)
+Configuration loaded: [object Object]
+```
 
 ## Fetch API in detail
 
