@@ -400,8 +400,12 @@ Promise.any([
 ## Promise.all and Promise.allSettled
 The `all()` static method of promise takes an array of promises and passes an array of resolved results to the `then()` function when all promises resolve. If any one of the given promises is rejected, then the `then()` function is *not* called; the `catch()` function is used instead.
 
-* `Promise.all()` rejects immediately if any promise fails, whereas
+* `Promise.all()` rejects immediately if any promise fails
+  * `Promise.all().then(val)`: `val` is an array of resolved values in the exact order of the original promises
+  * `Promise.all().catch(err)`: `err` is the single error object/reason from the first promise that rejected
 * `Promise.allSettled()` waits for all promises to finish regardless of whether they succeed or fail
+  * `Promise.allSettled().then(results)`: `results` is an array of objects, each containing `{ status: 'fulfilled', value }` or `{ status: 'rejected', reason }`
+  * **Important!** `Promise.allSettled().catch()`: **Never runs**, because `Promise.allSettled` always resolves once every promise completes, regardless of success or failure
 
 Pros of `Promise.all()`:
 * Non-blocking way to fetch multiple requests *but process the outcomes in order*!
@@ -449,6 +453,50 @@ Promise.all([
 
 // Logs:
 // rejected
+```
+
+```js
+const createPromise = (success, secondsDelay) => 
+  new Promise((resolve, reject) => 
+    setTimeout(() =>
+      success 
+        ? resolve(`resolved ${secondsDelay}`) 
+        : reject(`rejected ${secondsDelay}`)
+      , secondsDelay * 1000
+    ) 
+  )
+
+Promise.all([
+  createPromise(true, 1),
+  createPromise(true, 2),
+  createPromise(true, 3)
+])
+  .then(console.log) // [ 'resolved 1', 'resolved 2', 'resolved 3' ]
+  .catch(console.log) 
+
+Promise.all([
+  createPromise(true, 1),
+  createPromise(false, 2),
+  createPromise(true, 3)
+])
+  .then(console.log) // 'rejected 2'
+  .catch(console.log)
+
+Promise.allSettled([
+  createPromise(true, 1),
+  createPromise(true, 2),
+  createPromise(true, 3)
+])
+  .then(console.log) // [ { status: 'fulfilled', value: 'resolved 1' }, { status: 'fulfilled', value: 'resolved 2' }, { status: 'fulfilled', value: 'resolved 3' } ]
+  .catch(console.log) 
+
+Promise.allSettled([
+  createPromise(true, 1),
+  createPromise(false, 2),
+  createPromise(true, 3)
+])
+  .then(console.log) // [ { status: 'fulfilled', value: 'resolved 1' }, { status: 'rejected', reason: 'rejected 2' }, { status: 'fulfilled', value: 'resolved 3' } ]
+  .catch(console.log) 
 ```
 
 ## Async await
