@@ -14,6 +14,7 @@
   * [Promise.all and Promise.allSettled](#promiseall-and-promiseallsettled)
   * [Promise.finally](#promisefinally)
   * [Async await](#async-await)
+  * [New Promise.withResolvers](#new-promisewithresolvers)
   * [Fetch API in detail](#fetch-api-in-detail)
     + [Simple GET request using fetch](#simple-get-request-using-fetch)
     + [Fetching JSON](#fetching-json)
@@ -908,6 +909,85 @@ function initializeApplication() {
 Initializing...
 Sync setup complete (Async loading continues in background...)
 Configuration loaded: [object Object]
+```
+
+## New Promise.withResolvers
+
+`Promise.withResolvers()` is a static method introduced in **ES2024** that creates a new promise and directly exposes its resolve and reject functions as an **object**
+
+Before this method, if you needed to resolve or reject a promise from outside its scope (like from an external event handler), you had to use a clunky workaround to extract the controllers into out-of-scope variables. Promise.withResolvers() eliminates this boilerplate completely
+
+
+**The Old Way (Extracting Variables Manually)**
+```js
+let resolveRef;
+let rejectRef;
+
+const promise = new Promise((resolve, reject) => {
+  resolveRef = resolve;
+  rejectRef = reject;
+});
+
+// Now you can use resolveRef and rejectRef elsewhere
+```
+
+**The New Way (Using `Promise.withResolvers()`)**
+```js
+const { promise, resolve, reject } = Promise.withResolvers();
+
+// No nested wrapper, no outer variables needed!
+```
+```js
+function waitForUserConfirmation() {
+  // 1. Create the promise and its controls immediately
+  const { promise, resolve, reject } = Promise.withResolvers();
+
+  const confirmBtn = document.getElementById('confirm-btn');
+  const cancelBtn = document.getElementById('cancel-btn');
+
+  // 2. Wire up the external events directly to resolve/reject
+  confirmBtn.addEventListener('click', () => resolve('User accepted!'));
+  cancelBtn.addEventListener('click', () => reject('User cancelled.'));
+
+  // 3. Return the promise to be awaited elsewhere
+  return promise;
+}
+
+// Usage with async/await
+async function runWorkflow() {
+  try {
+    const result = await waitForUserConfirmation();
+    console.log(result); // "User accepted!"
+  } catch (error) {
+    console.error(error); // "User cancelled."
+  }
+}
+```
+
+**Why Use It?**
+1. **Flatter Code**: You avoid wrapping your entire operational setup inside the new Promise((resolve, reject) => { ... }) callback block
+2. **Perfect for Streams & Events**: It shines when bridging ***non-promise async systems*** (like WebSockets, Node.js streams, or DOM event listeners) into promise-based code
+
+**You should not use Promise.withResolvers() in the following scenarios**
+1. Simple, Self-Contained Async Operations: If your asynchronous logic naturally fits inside a single block like standard timer scripts or wrapper files, stick to the traditional `new Promise()` constructor. Using `Promise.withResolvers()` here breaks encapsulation, leaking the control functions to a wider scope where they could be accidentally invoked twice
+```js
+// ❌ Anti-pattern: Unnecessary exposure of resolve/reject
+const { promise, resolve } = Promise.withResolvers();
+setTimeout(() => resolve("Done!"), 1000);
+return promise;
+
+// 🟢 Better: Encapsulated and idiomatic
+return new Promise((resolve) => setTimeout(() => resolve("Done!"), 1000));
+```
+2. Standard Native Web APIs (Fetch, File Readers): Do not use it to manually wrap modern APIs that _already return promises_ or use built-in mechanisms like `AbortController`
+```js
+// ❌ Anti-pattern: Manual wrapping boilerplate
+const { promise, resolve, reject } = Promise.withResolvers();
+fetch('/api').then(resolve).catch(reject);
+return promise;
+
+// 🟢 Better: Just return the native promise
+return fetch('/api');
 ```
 
 ## Fetch API in detail
