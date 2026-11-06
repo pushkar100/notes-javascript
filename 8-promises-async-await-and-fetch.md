@@ -89,6 +89,94 @@ A JavaScript Promise always exists in one of three primary states:
 2. Promises consistently and clearly discern data from errors by providing two separate channels of communication: *the data channel used with `then()`* and *the error channel used with `catch()`*
 3. There is no confusion in the order of the data and error objects to receive and handlers to apply when dealing with promises
 
+**Note**: **Microtask queues**
+1. In the browser, the Microtask Queue does not have its own isolated phase like macrotasks do. Instead, the engine checks and completely drains the Microtask Queue immediately after (1) any single execution context concludes (such as a synchronous script or a single macrotask) and (2) before the browser is allowed to re-render the screen
+```
+       ┌──────────────────────────────────────────────┐
+       │                                              │
+       ▼                                              │
+┌───────────────────────────────┐                     │
+│    Execute a Single Task      │                     │
+│ (Initial Script, Click Event, │                     │
+│     Timer Callback, etc.)     │                     │
+└──────────────┬────────────────┘                     │
+               │                                      │
+               ▼                                      │
+┌───────────────────────────────┐ ◄──────────┐        │ Loop Repeats
+│ Check & Drain Microtask Queue │            │ (If    │
+│  (Promises, queueMicrotask)   │────────────┘ New)   │
+└──────────────┬────────────────┘                     │
+               │ (When Empty)                         │
+               ▼                                      │
+┌───────────────────────────────┐                     │
+│     Update Rendering?         │                     │
+│ (Style, Layout, Paint, RAF)   │                     │
+└──────────────┬────────────────┘                     │
+               │                                      │
+               └──────────────────────────────────────┘
+```
+
+2. Node.js uses the libuv event loop, which is divided into explicit phases. The Microtask Queue behaves differently here than a standard phase: the Node.js runtime checks and completely empties the microtasks between _every single phase transition of the event loop_, as well as _between individual callbacks within those phases_ (aligned with browser behavior since Node 11+). Furthermore, Node.js splits its microtasks into two distinct micro-queues, prioritizing `process.nextTick` above native Promises
+```js
+ ┌────────────────────────────────────────────────────────┐
+ │                      START                             │
+ └─────────────────────────┬──────────────────────────────┘
+                           │
+                           ▼
+ ┌────────────────────────────────────────────────────────┐
+ │ 1. TIMERS PHASE (setTimeout, setInterval)             │
+ └─────────────────────────┬──────────────────────────────┘
+                           │
+  [CHECK POINT] ───────────┼───► ┌────────────────────────┐
+                           │     │ 1. process.nextTick    │
+                           │     └───────────┬────────────┘
+                           │                 │ (When Empty)
+                           │                 ▼
+                           │     ┌────────────────────────┐
+                           │     │ 2. Promises / Micro    │
+                           │     └────────────────────────┘
+                           │
+                           ▼
+ ┌────────────────────────────────────────────────────────┐
+ │ 2. PENDING CALLBACKS (System / OS errors)              │
+ └─────────────────────────┬──────────────────────────────┘
+                           │
+  [CHECK POINT] ───────────┴───► (Runs nextTick & Promises)
+                           │
+                           ▼
+ ┌────────────────────────────────────────────────────────┐
+ │ 3. IDLE, PREPARE PHASE (Internal Node tasks)          │
+ └─────────────────────────┬──────────────────────────────┘
+                           │
+  [CHECK POINT] ───────────┴───► (Runs nextTick & Promises)
+                           │
+                           ▼
+ ┌────────────────────────────────────────────────────────┐
+ │ 4. POLL PHASE (Incoming I/O: Network, Files)           │
+ └─────────────────────────┬──────────────────────────────┘
+                           │
+  [CHECK POINT] ───────────┴───► (Runs nextTick & Promises)
+                           │
+                           ▼
+ ┌────────────────────────────────────────────────────────┐
+ │ 5. CHECK PHASE (setImmediate)                          │
+ └─────────────────────────┬──────────────────────────────┘
+                           │
+  [CHECK POINT] ───────────┴───► (Runs nextTick & Promises)
+                           │
+                           ▼
+ ┌────────────────────────────────────────────────────────┐
+ │ 6. CLOSE CALLBACKS (socket.on('close'), etc.)          │
+ └─────────────────────────┬──────────────────────────────┘
+                           │
+  [CHECK POINT] ───────────┼───► (Runs nextTick & Promises)
+                           │
+                           ▼
+ ┌────────────────────────────────────────────────────────┐
+ │            LOOP ENDS / RE-EVALUATE TIMERS              │
+ └────────────────────────────────────────────────────────┘
+```
+
 ## Creating a promise
 
 * We can create a promise by instantiating it:
@@ -171,6 +259,11 @@ computeSqrt(16).catch(err => console.log(err));
 // Logs:
 // Error ...
 ```
+
+An **Unhandled Rejection** occurs when a promise shifts to the **rejected** state (fails), but your runtime application code fails to provide a `.catch()` block or an operational `try...catch` wrapper to process that failure context. When this runtime safety boundary is breached:
+* In Browsers: A severe runtime exception flag is thrown to the developer terminal console (Uncaught (in promise)...).
+* In Node.js: The process treats this as an unchecked crash vector. By default, it prints a stack trace and terminates the entire application process abruptly.
+
 
 ## What does a promise contain?
 
